@@ -2,7 +2,7 @@
  * File              : parser.hpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 25.03.2021 15:05
- * Last Modified Date: 28.03.2021 23:47
+ * Last Modified Date: 01.04.2021 23:09
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -10,87 +10,116 @@
 # define PARSER_HPP
 
 # include <boost/program_options.hpp>
-# include <exception>
 # include <iostream>
 # include <fstream>
 # include <cstdint>
 # include <string>
+
+# include "graph.hpp"
 
 namespace po = boost::program_options;
 
 class Parser
 {
 public:
-    std::vector<std::vector<int32_t>>   puzzle;
-
-    Parser()
-        : cmd_line_options{po::options_description("Allowed optinos")},
-          general{po::options_description("General options")},
-          algorithm{po::options_description("Algorithm options")}
-    {
-        general.add_options()
-            ("help,h", "Show help message")
-            ("puzzle-file,p", po::value<std::string>()->required(), "The file in which the puzzle store")
-            ("version,v", "print version and exit");
-        algorithm.add_options()
-            ("heuristic,e", po::value<std::string>()->default_value("g"), "A* heuristic functions");
-        cmd_line_options.add(general).add(algorithm);
-    }
+    Parser() {}
 
     void parse_cmd_options(int argc, char **argv)
     {
-        po::store(po::parse_command_line(argc, argv, cmd_line_options), var_map);
+        po::options_description options("Allowed options");
+
+        options.add_options()
+            ("help,h", "Show help message")
+            ("puzzle,p", po::value<std::string>()->required(), "puzzle file")
+            ("heuristic,e", po::value<std::string>()->default_value("hamming"), "heuristic function");
+
+        po::store(po::parse_command_line(argc, argv, options), var_map);
+
         if (var_map.count("help"))
-            cmd_line_options.print(std::cout, 0), exit(0);
-        if (var_map.count("version"))
-            std::cout << "1.0.0." << std::endl, exit(0);
+            options.print(std::cout, 0), exit(0);
+
         po::notify(var_map);
     }
 
-    void parse_puzzle_file()
+    State *generate_initial_state()
     {
-        std::vector<std::string>    lines;
-        std::fstream                file;
-        std::string                 line;
-        int32_t                     size{0};
+        std::vector<std::vector<int64_t>> puzzle;
+        State *initial_state{new State()};
 
-        file.open(var_map["puzzle-file"].as<std::string>());
+        _read_puzzle_file();
+        
+        for (std::vector<std::string>::size_type l{0}; l < puzzle_lines.size(); ++l)
+        {
+            std::istringstream  data(puzzle_lines[l]);
+
+            if (!puzzle_dimension)
+            {
+                data >> puzzle_dimension;
+                if (puzzle_dimension < 2 || puzzle_dimension >= 100)
+                    throw std::invalid_argument("Puzzle too small or too big");
+                if (data >> puzzle_dimension)
+                    throw std::invalid_argument("Puzzle dimension is just ONE NUMBER"); 
+            }
+            else
+            {
+                std::vector<int64_t> row;
+
+                for (int32_t i{0}, value; i < puzzle_dimension; ++i)
+                {
+                    data >> value;
+                    if (value == 0)
+                        initial_state->x = i, initial_state->y = l - 1;
+                    row.push_back(value);
+                }
+                puzzle.push_back(row);
+            }
+        }
+        initial_state->puzzle = puzzle;
+        return (initial_state);
+    }
+
+    State *generate_final_state()
+    {
+        std::vector<std::vector<int64_t>> final_puzzle;
+        State *final_state{new State()};
+        std::vector<int64_t> row;
+
+        for (int64_t y{0}; y < puzzle_dimension; ++y)
+        {
+            for (int64_t x{0}; x < puzzle_dimension; ++x)
+                row.push_back(puzzle_dimension * y + x + 1); 
+            final_puzzle.push_back(row);
+            row.clear();
+        }
+
+        final_puzzle[puzzle_dimension - 1][puzzle_dimension -1] = 0;
+        final_state->puzzle = final_puzzle;
+
+        return (final_state);
+    }
+
+    std::string get_heuristic() { return (var_map["heuristic"].as<std::string>()); }
+
+private:
+    std::vector<std::string> puzzle_lines;
+    po::variables_map        var_map;
+    int64_t                  puzzle_dimension{0};
+
+    void _read_puzzle_file()
+    {
+        std::fstream file;
+        std::string  line;
+
+        file.open(var_map["puzzle"].as<std::string>());
+
         while (std::getline(file, line))
         {
             if (line.size() == 0) continue;
             line.erase(std::find( line.begin(), line.end(), '#' ), line.end());
             if (line.size() == 0) continue;
-            lines.push_back(line);
-        }
-        for (int32_t l{0}; l < lines.size(); ++l)
-        {
-            std::istringstream  data(lines[l]);
-
-            if (!size)
-            {
-                data >> size;
-                if (size < 2 || size >= 100)
-                    throw std::invalid_argument("Puzzle too small or too big");
-                if (data >> size)
-                    throw std::invalid_argument("Puzzle dimension is just ONE NUMBER"); 
-            }
-            else
-            {
-                std::vector<int32_t> row;
-                for (int32_t i{0}, value; i < size; ++i)
-                    data >> value, row.push_back(value);
-                puzzle.push_back(row);
-            }
+            puzzle_lines.push_back(line);
         }
     }
-
-    ~Parser() {}
-
-private:
-    po::options_description cmd_line_options;
-    po::options_description general;
-    po::options_description algorithm;
-    po::variables_map       var_map;
 };
 
 #endif
