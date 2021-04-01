@@ -2,7 +2,7 @@
  * File              : graph.hpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 29.03.2021 00:27
- * Last Modified Date: 30.03.2021 18:34
+ * Last Modified Date: 02.04.2021 01:46
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -11,58 +11,51 @@
 
 # include <vector>
 # include <cstdint>
+# include <iostream>
 
 class State
 {
 public:
-    struct empty_tile
+    std::vector<std::vector<int64_t>> puzzle;
+    State *parent;
+    int64_t g{0};
+    int64_t h;
+    int64_t f;
+
+    int64_t x;
+    int64_t y;
+    
+    State() {}
+
+    void print() const
     {
-        int32_t x;
-        int32_t y;
-    };
-    std::vector<std::vector<int32_t>> puzzle;
-    empty_tile crd;
-    int32_t g;
-    int32_t h;
-    int32_t f;
-
-    State(std::vector<std::vector<int32_t>> &puzzle) : puzzle{puzzle} {}
-};
-
-class NodeBase
-{
-public:
-    class EdgeBase
-    {
-        NodeBase *endpoint;
-    };
-    NodeBase *parent;
-};
-
-template <class T1, class T2>
-class Node : public NodeBase
-{
-public:
-    class Edge : public NodeBase::EdgeBase
-    {
-    public:
-        T2              *content;
-        
-        Edge(T2 *content) : content{content} {}
-        ~Edge() { delete content; }
-    };
-    std::vector<Edge *> edges;
-    T1                  *content;
-
-    Node(T1 *content) : content{content} {}
-
-    void connect(NodeBase *node, T2 *content)
-    {
-        node->parent = this;
-        edges.push_back(new Node<T1, T2>::Edge(content));
+        for (uint64_t y{0}; y < puzzle.size(); ++y, std::cout << std::endl)
+            for (uint64_t x{0}; x < puzzle[y].size(); ++x)
+                std::cout << puzzle[y][x] << " ";
     }
 
-    ~Node() { delete content; }
+    friend bool operator<(const State &l, const State &r) { return (l.f < r.f); }
+    friend bool operator>(const State &l, const State &r) { return (l.f > r.f); }
+    friend bool operator>=(const State &l, const State &r) { return (l.f >= r.f); }
+    friend bool operator<=(const State &l, const State &r) { return (l.f <= r.f); }
+
+    friend bool operator==(const State &l, const State &r)
+    {
+        l.print();
+        r.print();
+
+        for (uint64_t y{0}; y < l.puzzle.size(); ++y)
+            for (uint64_t x{0}; x < l.puzzle[y].size(); ++x)
+                if (l.puzzle[y][x] != r.puzzle[y][x])
+                    return (false);
+        return (true);
+    }
+
+    friend std::ostream &operator<<(std::ostream &os, const State &obj)
+    {
+        std::cout << obj.g + obj.h;
+        return (os);
+    }
 };
 
 #endif
