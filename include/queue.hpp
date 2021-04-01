@@ -2,7 +2,7 @@
  * File              : queue.hpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 31.03.2021 00:50
- * Last Modified Date: 02.04.2021 01:33
+ * Last Modified Date: 02.04.2021 01:36
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
