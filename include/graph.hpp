@@ -2,7 +2,7 @@
  * File              : graph.hpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 29.03.2021 00:27
- * Last Modified Date: 02.04.2021 01:46
+ * Last Modified Date: 02.04.2021 14:36
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -41,14 +41,7 @@ public:
 
     friend bool operator==(const State &l, const State &r)
     {
-        l.print();
-        r.print();
-
-        for (uint64_t y{0}; y < l.puzzle.size(); ++y)
-            for (uint64_t x{0}; x < l.puzzle[y].size(); ++x)
-                if (l.puzzle[y][x] != r.puzzle[y][x])
-                    return (false);
-        return (true);
+        return (l.puzzle == r.puzzle);
     }
 
     friend std::ostream &operator<<(std::ostream &os, const State &obj)

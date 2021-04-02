@@ -2,7 +2,7 @@
  * File              : solver.hpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 25.03.2021 13:34
- * Last Modified Date: 02.04.2021 01:24
+ * Last Modified Date: 02.04.2021 14:42
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -27,7 +27,7 @@ int64_t _hamming(State *final_state, State *state)
         for (uint64_t x{0}; x < final_state->puzzle[y].size(); ++x)
             if (state->puzzle[y][x] != final_state->puzzle[y][x])
                 ++result;
-    if (state->puzzle[state->puzzle.size() - 1][state->puzzle.size() -1] != 0)
+    if (state->puzzle[state->puzzle.size() - 1][state->puzzle.size() - 1] != 0)
         --result;
     return (result);
 }
@@ -47,11 +47,15 @@ public:
 
         while (!opened.empty() && !solved)
         {
+            std::cout << "Iter" << std::endl;
             State *state = opened.pop();
+
+            state->print();
 
             if (state->puzzle == final_state->puzzle)
             {
                 solved = true;
+                std::cout << "Success!" << std::endl;
                 state->print();
             }
 
@@ -59,17 +63,30 @@ public:
             if (!opened.contains(up) && !closed.contains(up))
                 opened.push(up);
 
+            std::cout << "after_up" << std::endl;
+
             State *down = _down_move(final_state, state, heuristic);
             if (!opened.contains(down) && !closed.contains(down))
                 opened.push(down);
 
+            std::cout << "after_down" << std::endl;
+
             State *right = _right_move(final_state, state, heuristic);
             if (!opened.contains(right) && !closed.contains(right))
                 opened.push(right);
+
+            std::cout << "after_right" << std::endl;
             
             State *left = _left_move(final_state, state, heuristic);
+
+            std::cout << "Check" << std::endl;
+            state->print();
+            std::cout << "Check" << std::endl;
+
             if (!opened.contains(left) && !closed.contains(left))
                 opened.push(left);
+
+            std::cout << "after_left" << std::endl;
 
             closed.push(state);
         }
@@ -93,21 +110,21 @@ private:
         if (state->y - 1 < 0)
             return (nullptr);
 
-        std::vector<std::vector<int64_t>> up_puzzle{state->puzzle};
         State *up_state{new State()};
 
+        up_state->puzzle = state->puzzle;
         up_state->parent = state;
-        up_state->puzzle = up_puzzle;
+
+        up_state->puzzle[state->y][state->x] = state->puzzle[state->y - 1][state->x];
+        up_state->puzzle[state->y - 1][state->x] = 0;
+
         up_state->g = state->g + 1;
         up_state->h = heuristics[heuristic](final_state, up_state);
         up_state->f = up_state->g + up_state->h;
+
         up_state->y = state->y - 1;
         up_state->x = state->x;
 
-        int64_t tmp = up_state->puzzle[up_state->y][up_state->x];
-
-        up_state->puzzle[state->y - 1][state->x] = state->puzzle[state->y][state->x];
-        up_state->puzzle[state->y][state->x] = tmp;
         return (up_state);
     }
 
@@ -116,21 +133,21 @@ private:
         if ((uint64_t)(state->y + 1) >= state->puzzle.size())
             return (nullptr);
 
-        std::vector<std::vector<int64_t>> down_puzzle{state->puzzle};
         State *down_state{new State()};
 
+        down_state->puzzle = state->puzzle;
         down_state->parent = state;
-        down_state->puzzle = down_puzzle;
+
+        down_state->puzzle[state->y][state->x] = state->puzzle[state->y + 1][state->x];
+        down_state->puzzle[state->y + 1][state->x] = 0;
+
         down_state->g = state->g + 1;
         down_state->h = heuristics[heuristic](final_state, down_state);
         down_state->f = down_state->g + down_state->h;
+
         down_state->y = state->y + 1;
         down_state->x = state->x;
 
-        int64_t tmp = down_state->puzzle[down_state->y][down_state->x];
-
-        down_state->puzzle[state->y + 1][state->x] = state->puzzle[state->y][state->x];
-        down_state->puzzle[state->y][state->x] = tmp;
         return (down_state);
     }
 
@@ -139,22 +156,22 @@ private:
         if ((uint64_t)(state->x + 1) >= state->puzzle.size())
             return (nullptr);
 
-        std::vector<std::vector<int64_t>> down_puzzle{state->puzzle};
-        State *down_state{new State()};
+        State *right_state{new State()};
 
-        down_state->parent = state;
-        down_state->puzzle = down_puzzle;
-        down_state->g = state->g + 1;
-        down_state->h = heuristics[heuristic](final_state, down_state);
-        down_state->f = down_state->g + down_state->h;
-        down_state->y = state->y;
-        down_state->x = state->x + 1;
+        right_state->puzzle = state->puzzle;
+        right_state->parent = state;
 
-        int64_t tmp = down_state->puzzle[down_state->y][down_state->x];
+        right_state->puzzle[state->y][state->x] = state->puzzle[state->y][state->x + 1];
+        right_state->puzzle[state->y][state->x + 1] = 0;
 
-        down_state->puzzle[state->y][state->x + 1] = state->puzzle[state->y][state->x];
-        down_state->puzzle[state->y][state->x] = tmp;
-        return (down_state);
+        right_state->g = state->g + 1;
+        right_state->h = heuristics[heuristic](final_state, right_state);
+        right_state->f = right_state->g + right_state->h;
+
+        right_state->y = state->y;
+        right_state->x = state->x + 1;
+
+        return (right_state);
     }
 
     State *_left_move(State *final_state, State *state, const std::string &heuristic)
@@ -162,22 +179,26 @@ private:
         if (state->x - 1 < 0)
             return (nullptr);
 
-        std::vector<std::vector<int64_t>> down_puzzle{state->puzzle};
-        State *down_state{new State()};
+        State *left_state{new State()};
 
-        down_state->parent = state;
-        down_state->puzzle = down_puzzle;
-        down_state->g = state->g + 1;
-        down_state->h = heuristics[heuristic](final_state, down_state);
-        down_state->f = down_state->g + down_state->h;
-        down_state->y = state->y;
-        down_state->x = state->x - 1;
+        left_state->puzzle = state->puzzle;
+        left_state->parent = state;
 
-        int64_t tmp = down_state->puzzle[down_state->y][down_state->x];
+        state->print();
+        std::cout << std::endl;
+        left_state->print();
 
-        down_state->puzzle[state->y][state->x - 1] = state->puzzle[state->y][state->x];
-        down_state->puzzle[state->y][state->x] = tmp;
-        return (down_state);
+        left_state->puzzle[state->y][state->x] = state->puzzle[state->y][state->x - 1];
+        left_state->puzzle[state->y][state->x - 1] = 0;
+
+        left_state->g = state->g + 1;
+        left_state->h = heuristics[heuristic](final_state, left_state);
+        left_state->f = left_state->g + left_state->h;
+
+        left_state->y = state->y;
+        left_state->x = state->x - 1;
+
+        return (left_state);
     }
 };
 

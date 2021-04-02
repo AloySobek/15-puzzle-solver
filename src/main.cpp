@@ -2,10 +2,11 @@
  * File              : main.cpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 25.03.2021 13:28
- * Last Modified Date: 02.04.2021 00:30
+ * Last Modified Date: 02.04.2021 14:41
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
+#include <sys/resource.h>
 #include <exception>
 #include <cstdint>
 
