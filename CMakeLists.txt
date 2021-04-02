@@ -9,6 +9,7 @@ set(CMAKE_BUILD_TYPE Debug)
 add_executable(
     ${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/src/main.cpp
+    ${PROJECT_SOURCE_DIR}/src/parser.cpp
 )
 
 target_include_directories(
