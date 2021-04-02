@@ -2,7 +2,7 @@
  * File              : solver.hpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 25.03.2021 13:34
- * Last Modified Date: 02.04.2021 14:42
+ * Last Modified Date: 03.04.2021 00:46
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -16,7 +16,7 @@
 # include <cmath>
 # include <map>
 
-# include "graph.hpp"
+# include "state.hpp"
 # include "queue.hpp"
 
 int64_t _hamming(State *final_state, State *state)
@@ -39,64 +39,54 @@ public:
 
     void solve(State *final_state, State *initial_state, const std::string &heuristic)
     {
-        bool solved{false};
-
         initial_state->f = heuristics[heuristic](final_state, initial_state);
 
         opened.push(initial_state);
 
-        while (!opened.empty() && !solved)
+        while (!opened.empty())
         {
-            std::cout << "Iter" << std::endl;
             State *state = opened.pop();
-
-            state->print();
 
             if (state->puzzle == final_state->puzzle)
             {
-                solved = true;
-                std::cout << "Success!" << std::endl;
                 state->print();
+                break;
             }
 
             State *up = _up_move(final_state, state, heuristic);
             if (!opened.contains(up) && !closed.contains(up))
                 opened.push(up);
 
-            std::cout << "after_up" << std::endl;
-
             State *down = _down_move(final_state, state, heuristic);
             if (!opened.contains(down) && !closed.contains(down))
                 opened.push(down);
-
-            std::cout << "after_down" << std::endl;
 
             State *right = _right_move(final_state, state, heuristic);
             if (!opened.contains(right) && !closed.contains(right))
                 opened.push(right);
 
-            std::cout << "after_right" << std::endl;
-            
             State *left = _left_move(final_state, state, heuristic);
-
-            std::cout << "Check" << std::endl;
-            state->print();
-            std::cout << "Check" << std::endl;
 
             if (!opened.contains(left) && !closed.contains(left))
                 opened.push(left);
-
-            std::cout << "after_left" << std::endl;
 
             closed.push(state);
         }
     }
 
-    void check_if_solvable(State *initial_state)
+    bool is_solvable(State *initial_state)
     {
-        if (initial_state)
-            return ;
-        return ;        
+        int64_t inv_count = _get_inversion_count(initial_state->puzzle);
+
+        if (initial_state->puzzle.size() & 1)
+            return (!(inv_count & 1));
+        else     // grid is even
+        {
+            int64_t pos = _find_zero(initial_state->puzzle);
+            if (pos & 1)
+                return (!(inv_count & 1));
+            return (inv_count & 1);
+        }
     }
 
 private:
@@ -184,10 +174,6 @@ private:
         left_state->puzzle = state->puzzle;
         left_state->parent = state;
 
-        state->print();
-        std::cout << std::endl;
-        left_state->print();
-
         left_state->puzzle[state->y][state->x] = state->puzzle[state->y][state->x - 1];
         left_state->puzzle[state->y][state->x - 1] = 0;
 
@@ -199,6 +185,31 @@ private:
         left_state->x = state->x - 1;
 
         return (left_state);
+    }
+    
+    int64_t _get_inversion_count(std::vector<std::vector<int64_t>> &puzzle)
+    {
+        int64_t *array{new int64_t[puzzle.size() * puzzle.size()]};
+        int64_t count = 0;
+
+        for (uint64_t i{0}; i < puzzle.size(); ++i)
+            for (uint64_t j{0}; j < puzzle.size(); ++j)
+                array[puzzle.size() * i + j] = puzzle[i][j];
+
+        for (uint64_t i{0}; i < puzzle.size() * puzzle.size() - 1; ++i)
+            for (uint64_t j{i + 1}; j < puzzle.size() * puzzle.size(); ++j)
+                if (array[j] && array[i] && array[i] > array[j])
+                    count++;
+        return (count);
+    }
+
+    int64_t _find_zero(std::vector<std::vector<int64_t>> &puzzle)
+    {
+        for (int64_t i{(int64_t)puzzle.size() - 1}; i >= 0; --i)
+            for (int64_t j{(int64_t)puzzle.size() - 1}; j >= 0; --j)
+                if (puzzle[i][j] == 0)
+                    return puzzle.size() - i;
+        return (0);
     }
 };
 

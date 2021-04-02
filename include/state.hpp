@@ -1,8 +1,8 @@
 /**
- * File              : graph.hpp
+ * File              : state.hpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 29.03.2021 00:27
- * Last Modified Date: 02.04.2021 14:36
+ * Last Modified Date: 02.04.2021 21:56
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -36,6 +36,7 @@ public:
 
     friend bool operator<(const State &l, const State &r) { return (l.f < r.f); }
     friend bool operator>(const State &l, const State &r) { return (l.f > r.f); }
+
     friend bool operator>=(const State &l, const State &r) { return (l.f >= r.f); }
     friend bool operator<=(const State &l, const State &r) { return (l.f <= r.f); }
 

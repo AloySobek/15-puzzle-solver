@@ -2,7 +2,7 @@
  * File              : queue.hpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 31.03.2021 00:50
- * Last Modified Date: 02.04.2021 13:25
+ * Last Modified Date: 02.04.2021 14:49
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -189,7 +189,7 @@ QueueNode<T1> *PriorityQueue<T1>::_pop(QueueNode<T1> *root)
 template<class T1>
 bool PriorityQueue<T1>::_contains(QueueNode<T1> *root, T1 *key)
 {
-    if (!root)
+    if (!root || !key)
         return false;
     if (*(root->key) == *key)
         return true;

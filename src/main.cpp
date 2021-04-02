@@ -2,7 +2,7 @@
  * File              : main.cpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 25.03.2021 13:28
- * Last Modified Date: 02.04.2021 14:41
+ * Last Modified Date: 03.04.2021 00:40
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -10,9 +10,9 @@
 #include <exception>
 #include <cstdint>
 
+#include "state.hpp"
 #include "parser.hpp"
 #include "solver.hpp"
-#include "graph.hpp"
 
 int main(int argc, char **argv)
 {
@@ -34,20 +34,18 @@ int main(int argc, char **argv)
         return (-1);
     }
 
-    initial_state->print();
+    initial_state->print(), std::cout << std::endl;
 
-    std::cout << std::endl;
-
-    try
+    if (solver->is_solvable(initial_state))
     {
-        solver->check_if_solvable(initial_state);
+        std::cout << "Solvable" << std::endl;
         solver->solve(final_state, initial_state, parser->get_heuristic());
     }
-    catch (std::exception &e)
-    {
-        std::cout << e.what() << std::endl;
-        return (-1);
-    }
+    else
+        std::cout << "Sorry, your puzzle is not solvable at all!" << std::endl;
+
+    delete parser;
+    delete solver;
 
     return (0);
 }
