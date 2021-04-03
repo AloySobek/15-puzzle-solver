@@ -2,7 +2,7 @@
  * File              : main.cpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 25.03.2021 13:28
- * Last Modified Date: 03.04.2021 00:40
+ * Last Modified Date: 03.04.2021 18:30
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -19,14 +19,10 @@ int main(int argc, char **argv)
     Parser *parser{new Parser()};
     Solver *solver{new Solver()};
 
-    State *initial_state;
-    State *final_state; 
-
     try
     {
         parser->parse_cmd_options(argc , argv);
-        initial_state = parser->generate_initial_state();
-        final_state = parser->generate_final_state();
+        parser->parse_puzzle_file();
     }
     catch (std::exception &e)
     {
@@ -34,15 +30,19 @@ int main(int argc, char **argv)
         return (-1);
     }
 
-    initial_state->print(), std::cout << std::endl;
-
-    if (solver->is_solvable(initial_state))
+    try
     {
-        std::cout << "Solvable" << std::endl;
-        solver->solve(final_state, initial_state, parser->get_heuristic());
+        if (solver->is_solvable(parser->get_initial_state()))
+            solver->solve(parser->get_final_state(),
+                    parser->get_initial_state(), parser->get_heuristic());
+        else
+            std::cout << "Sorry, your puzzle is not solvable!" << std::endl;
     }
-    else
-        std::cout << "Sorry, your puzzle is not solvable at all!" << std::endl;
+    catch (std::exception &e)
+    {
+        std::cout << e.what() << std::endl;
+        return (-1);
+    }
 
     delete parser;
     delete solver;

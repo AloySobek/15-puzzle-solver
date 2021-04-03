@@ -2,7 +2,7 @@
  * File              : parser.hpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 25.03.2021 15:05
- * Last Modified Date: 02.04.2021 21:55
+ * Last Modified Date: 03.04.2021 17:56
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -10,6 +10,7 @@
 # define PARSER_HPP
 
 # include <boost/program_options.hpp>
+# include <exception>
 # include <iostream>
 # include <fstream>
 # include <cstdint>
@@ -22,21 +23,20 @@ namespace po = boost::program_options;
 class Parser
 {
 public:
-    Parser() {}
+    Parser() : pzl_n{0} {}
 
     void parse_cmd_options(int argc, char **argv);
+    void parse_puzzle_file();
 
-    State *generate_initial_state();
-    State *generate_final_state();
+    State *get_initial_state();
+    State *get_final_state();
 
     std::string get_heuristic();
 
 private:
-    std::vector<std::string> puzzle_lines;
+    std::vector<std::string> pzl_lines;
     po::variables_map        var_map;
-    int64_t                  puzzle_dimension{0};
-
-    void _read_puzzle_file();
+    int64_t                  pzl_n;
 };
 
 #endif

@@ -2,7 +2,7 @@
  * File              : queue.hpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 31.03.2021 00:50
- * Last Modified Date: 02.04.2021 14:49
+ * Last Modified Date: 03.04.2021 17:18
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -18,8 +18,8 @@ class QueueNode
 {
 public:
     QueueNode *parent{nullptr};
-    QueueNode *right {nullptr};
-    QueueNode *left  {nullptr};
+    QueueNode *right{nullptr};
+    QueueNode *left{nullptr};
     
     T1 *key;
 

@@ -2,7 +2,7 @@
  * File              : state.hpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 29.03.2021 00:27
- * Last Modified Date: 02.04.2021 21:56
+ * Last Modified Date: 03.04.2021 18:02
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -16,23 +16,12 @@
 class State
 {
 public:
-    std::vector<std::vector<int64_t>> puzzle;
-    State *parent;
-    int64_t g{0};
-    int64_t h;
-    int64_t f;
-
-    int64_t x;
-    int64_t y;
+    std::vector<std::vector<int64_t>> pzl;
+    State *parent{nullptr};
+    int64_t g{0}, h{0}, f{0};
+    int64_t x{0}, y{0};
     
     State() {}
-
-    void print() const
-    {
-        for (uint64_t y{0}; y < puzzle.size(); ++y, std::cout << std::endl)
-            for (uint64_t x{0}; x < puzzle[y].size(); ++x)
-                std::cout << puzzle[y][x] << " ";
-    }
 
     friend bool operator<(const State &l, const State &r) { return (l.f < r.f); }
     friend bool operator>(const State &l, const State &r) { return (l.f > r.f); }
@@ -42,7 +31,7 @@ public:
 
     friend bool operator==(const State &l, const State &r)
     {
-        return (l.puzzle == r.puzzle);
+        return (l.pzl == r.pzl);
     }
 
     friend std::ostream &operator<<(std::ostream &os, const State &obj)
@@ -50,6 +39,8 @@ public:
         std::cout << obj.g + obj.h;
         return (os);
     }
+
+    void print() const;
 };
 
 #endif
