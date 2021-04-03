@@ -1,2 +1,4 @@
-# N-Puzzle
-School 21 project
+Build
+========
+
+`mkdir build && cd build && cmake .. && make`
