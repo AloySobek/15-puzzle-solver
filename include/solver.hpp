@@ -2,7 +2,7 @@
  * File              : solver.hpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 25.03.2021 13:34
- * Last Modified Date: 03.04.2021 17:59
+ * Last Modified Date: 05.04.2021 18:35
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -14,6 +14,7 @@
 # include <cstdint>
 # include <string>
 # include <cmath>
+# include <queue>
 # include <map>
 
 # include "state.hpp"
@@ -23,7 +24,11 @@
 class Solver
 {
 public:
-    Solver() { heuristics["hamming"] = hamming; }
+    Solver()
+    {
+        heuristics["hamming"] = hamming;
+        heuristics["manhattan"] = manhattan;
+    }
 
     bool is_solvable(State *initial_state);
     void solve(State *final_state, State *initial_state, const std::string &heuristic);
@@ -41,7 +46,6 @@ private:
     
     int64_t _get_inversion_count(std::vector<std::vector<int64_t>> &puzzle);
     int64_t _find_zero(std::vector<std::vector<int64_t>> &puzzle);
-    
 };
 
 #endif

@@ -2,7 +2,7 @@
  * File              : parser.hpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 25.03.2021 15:05
- * Last Modified Date: 03.04.2021 17:56
+ * Last Modified Date: 05.04.2021 14:28
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -30,6 +30,7 @@ public:
 
     State *get_initial_state();
     State *get_final_state();
+    State *_get_final_state();
 
     std::string get_heuristic();
 

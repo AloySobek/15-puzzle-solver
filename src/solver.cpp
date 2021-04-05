@@ -2,33 +2,68 @@
  * File              : solver.cpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 02.04.2021 21:57
- * Last Modified Date: 03.04.2021 18:30
+ * Last Modified Date: 05.04.2021 18:54
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
 #include "solver.hpp"
+#include <unistd.h>
+#include <algorithm>
 
 void Solver::solve(State *final, State *initial, const std::string &heuristic)
 {
     State *intermediate{nullptr};
 
     initial->f = heuristics[heuristic](final, initial);
+
     opened.push(initial);
 
-    for (intermediate = opened.pop(); intermediate->pzl != final->pzl; intermediate = opened.pop())
+    while (!opened.empty())
     {
-        State *up = _up_move(final, intermediate, heuristic);
-        if (!opened.contains(up) && !closed.contains(up))
-            opened.push(up);
-        State *down = _down_move(final, intermediate, heuristic);
-        if (!opened.contains(down) && !closed.contains(down))
-            opened.push(down);
-        State *right = _right_move(final, intermediate, heuristic);
-        if (!opened.contains(right) && !closed.contains(right))
-            opened.push(right);
+        intermediate = opened.pop();
+
+        if (intermediate->pzl == final->pzl)
+            break;
+
         State *left = _left_move(final, intermediate, heuristic);
-        if (!opened.contains(left) && !closed.contains(left))
+        
+        if (!closed.contains(left))
+        {
+            State *tmp = opened.contains(left);
+            if (tmp && tmp->g <= intermediate->g)
+                continue;
             opened.push(left);
+        }
+
+        State *right = _right_move(final, intermediate, heuristic);
+        if (!closed.contains(right))
+        {
+            State *tmp = opened.contains(right);
+            if (tmp && tmp->g <= intermediate->g)
+                continue;
+            opened.push(right);
+        }
+        
+        State *up = _up_move(final, intermediate, heuristic);
+        if (!closed.contains(up))
+        {
+            State *tmp = opened.contains(up);
+            if (tmp && tmp->g <= intermediate->g)
+                continue;
+            opened.push(up);
+        }
+
+        State *down = _down_move(final, intermediate, heuristic);
+        if (!closed.contains(down))
+        {
+            State *tmp = opened.contains(down);
+            if (tmp && tmp->g <= intermediate->g)
+                continue;
+            opened.push(down);
+        }
+        
+        /* uint32_t m = 1000000; */
+        /* usleep(1 * m); */
         closed.push(intermediate);
     }
     intermediate->print();

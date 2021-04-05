@@ -2,7 +2,7 @@
  * File              : main.cpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 25.03.2021 13:28
- * Last Modified Date: 03.04.2021 18:30
+ * Last Modified Date: 05.04.2021 16:06
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -32,11 +32,11 @@ int main(int argc, char **argv)
 
     try
     {
-        if (solver->is_solvable(parser->get_initial_state()))
-            solver->solve(parser->get_final_state(),
+        /* if (solver->is_solvable(parser->get_initial_state())) */
+            solver->solve(parser->_get_final_state(),
                     parser->get_initial_state(), parser->get_heuristic());
-        else
-            std::cout << "Sorry, your puzzle is not solvable!" << std::endl;
+        /* else */
+            /* std::cout << "Sorry, your puzzle is not solvable!" << std::endl; */
     }
     catch (std::exception &e)
     {

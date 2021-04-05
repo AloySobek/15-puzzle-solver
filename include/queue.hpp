@@ -2,7 +2,7 @@
  * File              : queue.hpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 31.03.2021 00:50
- * Last Modified Date: 03.04.2021 17:18
+ * Last Modified Date: 05.04.2021 17:24
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -34,17 +34,43 @@ public:
 
     PriorityQueue<T1> *push(T1 *key)
     {
-        if (key) q_root = _push(q_root, key);
+        if (key)
+        {
+            q_root = _push(q_root, key);
+            q_root->parent = nullptr;
+        }
         return (this);
     }
     T1 *pop()
     {
-        return(_pop(q_root)->key);
+        QueueNode<T1> *poped;
+
+        if (!(poped = _pop(q_root)))
+            return (nullptr);
+
+        if (poped == q_root)
+        {
+            if (poped->right)
+            {
+                q_root = poped->right;
+                q_root->parent = nullptr;
+            }
+            else
+                q_root = nullptr;
+        }
+
+        return (poped->key);
     }
 
     bool empty()           { return (q_root ? false : true); }
-    bool contains(T1 *key) { return _contains(q_root, key); }
     void tree_print()      { _tree_print("", q_root, false); }
+    T1  *contains(T1 *key)
+    {
+        QueueNode<T1> *tmp = _contains(q_root, key);
+        if (tmp)
+            return (tmp->key);
+        return (nullptr);
+    }
     
 private:
     QueueNode<T1> *q_root{nullptr};
@@ -60,7 +86,7 @@ private:
     QueueNode<T1> *_push(QueueNode<T1> *root, T1 *item);
     QueueNode<T1> *_pop(QueueNode<T1> *root);
 
-    bool _contains(QueueNode<T1> *root, T1 *key);
+    QueueNode<T1> *_contains(QueueNode<T1> *root, T1 *key);
     void _tree_print(const std::string &prefix, QueueNode<T1> *root, bool left);
 };
 
@@ -172,8 +198,6 @@ QueueNode<T1> *PriorityQueue<T1>::_pop(QueueNode<T1> *root)
             else
                 root->parent->left = nullptr;
         }
-        else
-            q_root = nullptr;
         ghost = root;
     }
     else
@@ -187,12 +211,12 @@ QueueNode<T1> *PriorityQueue<T1>::_pop(QueueNode<T1> *root)
 }
 
 template<class T1>
-bool PriorityQueue<T1>::_contains(QueueNode<T1> *root, T1 *key)
+QueueNode<T1> *PriorityQueue<T1>::_contains(QueueNode<T1> *root, T1 *key)
 {
     if (!root || !key)
-        return false;
+        return (nullptr);
     if (*(root->key) == *key)
-        return true;
+        return (root);
     if (*(root->key) > *key)
         return (_contains(root->left, key));
     return (_contains(root->right, key));
@@ -202,8 +226,7 @@ template<class T1>
 void PriorityQueue<T1>::_tree_print
     (const std::string &prefix, QueueNode<T1> *root, bool left)
 {
-    if (!root)
-        return ;
+    if (!root) return ;
     std::cout << prefix << (left ? "├──" : "└──" ) << *(root->key) << std::endl;
     _tree_print(prefix + (left ? "│  " : "   "), root->left, true);
     _tree_print(prefix + (left ? "│  " : "   "), root->right, false);

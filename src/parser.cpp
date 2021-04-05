@@ -2,7 +2,7 @@
  * File              : parser.cpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 02.04.2021 21:29
- * Last Modified Date: 03.04.2021 18:18
+ * Last Modified Date: 05.04.2021 16:06
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -99,6 +99,24 @@ State *Parser::get_final_state()
         state->pzl.push_back(row);
     }
     state->pzl[pzl_n - 1][pzl_n - 1] = 0;
+    return (state);
+}
+
+State *Parser::_get_final_state()
+{
+    State *state{new State()};
+
+    switch(pzl_n) {
+        case 2:
+            state->pzl = {{1, 2}, {0, 3}};
+            break;
+        case 3:
+            state->pzl = {{1, 2, 3}, {8, 0, 4}, {7, 6, 5}};
+            break;
+        case 4:
+            state->pzl = {{1, 2, 3, 4}, {12, 13, 14, 5}, {11, 0, 15, 6}, {10, 9, 8, 7}};
+            break;
+    }
     return (state);
 }
 

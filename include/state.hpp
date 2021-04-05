@@ -2,7 +2,7 @@
  * File              : state.hpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 29.03.2021 00:27
- * Last Modified Date: 03.04.2021 18:02
+ * Last Modified Date: 05.04.2021 17:17
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -36,7 +36,7 @@ public:
 
     friend std::ostream &operator<<(std::ostream &os, const State &obj)
     {
-        std::cout << obj.g + obj.h;
+        std::cout << obj.f;
         return (os);
     }
 
