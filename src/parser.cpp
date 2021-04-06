@@ -2,11 +2,12 @@
  * File              : parser.cpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 02.04.2021 21:29
- * Last Modified Date: 05.04.2021 16:06
+ * Last Modified Date: 06.04.2021 15:10
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
 #include "parser.hpp"
+#include <stdexcept>
 
 void Parser::parse_cmd_options(int argc, char **argv)
 {
@@ -41,6 +42,9 @@ void Parser::parse_puzzle_file()
         pzl_lines.push_back(line);
     }
 
+    if (!pzl_lines.size())
+        throw std::invalid_argument("Empty file!");
+
     for (int64_t n{0}, i{0}, l{0}; l < (int64_t)pzl_lines.size(); ++l)
     {
         std::istringstream  data(pzl_lines[l]);
@@ -48,21 +52,16 @@ void Parser::parse_puzzle_file()
         if (!pzl_n)        
         {
             data >> pzl_n;
-            if (pzl_n < 2)
-                throw std::invalid_argument("N is too small");
-            else if (pzl_n >= 10)
-                throw std::invalid_argument("N is too big");
-            else if (data >> pzl_n)
-                throw std::invalid_argument("Wrong N");
+            if (pzl_n < 2 || pzl_n >= 5 || data >> pzl_n)
+                throw std::invalid_argument("Wrong dimension number");
+            else if ((int64_t)pzl_lines.size() - 1 != pzl_n)
+                throw std::invalid_argument("Wrong dimension rows");
         }
         else
         {
-            for (i = 0; i < pzl_n; ++i)
-                data >> n;
-            if (i != pzl_n)
-                throw std::invalid_argument("Not enough numbers in puzzle row");
-            if (data >> n)
-                throw std::invalid_argument("Too many numbers in puzzle row");
+            for (i = 0; i < pzl_n; ++i) data >> n;
+            if (i != pzl_n || data >> n)
+                throw std::invalid_argument("Wrong numbers in a row");
         }
     }
 }
