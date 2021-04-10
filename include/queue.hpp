@@ -2,22 +2,24 @@
  * File              : queue.hpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 31.03.2021 00:50
- * Last Modified Date: 05.04.2021 17:24
+ * Last Modified Date: 10.04.2021 15:36
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
 #ifndef QUEUE_HPP
 # define QUEUE_HPP
 
+# include <functional>
 # include <iostream>
 # include <cstdint>
+# include <vector>
 # include <string>
+# include <queue>
 
 template <class T1>
 class QueueNode
 {
 public:
-    QueueNode *parent{nullptr};
     QueueNode *right{nullptr};
     QueueNode *left{nullptr};
     
@@ -32,48 +34,17 @@ class PriorityQueue
 public:
     PriorityQueue() {}
 
-    PriorityQueue<T1> *push(T1 *key)
-    {
-        if (key)
-        {
-            q_root = _push(q_root, key);
-            q_root->parent = nullptr;
-        }
-        return (this);
-    }
-    T1 *pop()
-    {
-        QueueNode<T1> *poped;
+    void push(T1 *key) { if (key) q_root = _push(q_root, key); }
+    void pop()         { q_root = _pop(q_root); };
 
-        if (!(poped = _pop(q_root)))
-            return (nullptr);
+    T1 *top()             { QueueNode<T1> *tmp = _top(q_root); return tmp ? tmp->key : nullptr;};
+    T1 *contains(T1 *key) { QueueNode<T1> *tmp = _contains(q_root, key); return tmp ? tmp->key : nullptr; }
 
-        if (poped == q_root)
-        {
-            if (poped->right)
-            {
-                q_root = poped->right;
-                q_root->parent = nullptr;
-            }
-            else
-                q_root = nullptr;
-        }
-
-        return (poped->key);
-    }
-
-    bool empty()           { return (q_root ? false : true); }
-    void tree_print()      { _tree_print("", q_root, false); }
-    T1  *contains(T1 *key)
-    {
-        QueueNode<T1> *tmp = _contains(q_root, key);
-        if (tmp)
-            return (tmp->key);
-        return (nullptr);
-    }
+    bool empty() { return (q_root ? false : true); }
+    void print() { _print("", q_root, false); }
     
-private:
     QueueNode<T1> *q_root{nullptr};
+private:
 
     int64_t _height(QueueNode<T1> *root);
 
@@ -85,9 +56,10 @@ private:
     QueueNode<T1> *_balance(QueueNode<T1> *root);
     QueueNode<T1> *_push(QueueNode<T1> *root, T1 *item);
     QueueNode<T1> *_pop(QueueNode<T1> *root);
+    QueueNode<T1> *_top(QueueNode<T1> *root);
 
     QueueNode<T1> *_contains(QueueNode<T1> *root, T1 *key);
-    void _tree_print(const std::string &prefix, QueueNode<T1> *root, bool left);
+    void _print(const std::string &prefix, QueueNode<T1> *root, bool left);
 };
 
 template<class T1>
@@ -100,9 +72,6 @@ template<class T1>
 QueueNode<T1> *PriorityQueue<T1>::_left_rotation(QueueNode<T1> *root)
 {
     QueueNode<T1> *tmp;
-
-    root->parent = root->right;
-    root->right->parent = root->parent;
 
     tmp = root->right;
     root->right = tmp->left;
@@ -121,9 +90,6 @@ template<class T1>
 QueueNode<T1> *PriorityQueue<T1>::_right_rotation(QueueNode<T1> *root)
 {
     QueueNode<T1> *tmp;
-
-    root->parent = root->left;
-    root->left->parent = root->parent;
 
     tmp = root->left;
     root->left = tmp->right;
@@ -167,13 +133,11 @@ QueueNode<T1> *PriorityQueue<T1>::_push(QueueNode<T1> *root, T1 *item)
     else if (*(root->key) > *item)
     {
         root->left = _push(root->left, item);
-        root->left->parent = root;
         root = _balance(root);
     }
     else if (*(root->key) <= *item)
     {
         root->right = _push(root->right, item);
-        root->right->parent = root;
         root = _balance(root);
     }
     return (root);
@@ -182,32 +146,22 @@ QueueNode<T1> *PriorityQueue<T1>::_push(QueueNode<T1> *root, T1 *item)
 template<class T1>
 QueueNode<T1> *PriorityQueue<T1>::_pop(QueueNode<T1> *root)
 {
-    QueueNode<T1> *ghost{nullptr};
-
     if (!root)
-        return nullptr;
-    if (!(ghost = _pop(root->left)))
-    {
-        if (root->parent)
-        {
-            if (root->right)
-            {
-                root->right->parent = root->parent;
-                root->parent->left = root->right;
-            }
-            else
-                root->parent->left = nullptr;
-        }
-        ghost = root;
-    }
-    else
-    {
-        if (root == q_root)
-            q_root = _balance(root);
-        else
-            _balance(root);
-    }
-    return (ghost);
+        return (nullptr);
+    if (!root->left)
+        return (root->right);
+    root->left = _pop(root->left);
+    return (_balance(root));
+}
+
+template<class T1>
+QueueNode<T1> *PriorityQueue<T1>::_top(QueueNode<T1> *root)
+{
+    if (!root)
+        return (nullptr);
+    if (!root->left)
+        return (root);
+    return (_top(root->left));
 }
 
 template<class T1>
@@ -223,13 +177,13 @@ QueueNode<T1> *PriorityQueue<T1>::_contains(QueueNode<T1> *root, T1 *key)
 }
 
 template<class T1>
-void PriorityQueue<T1>::_tree_print
+void PriorityQueue<T1>::_print
     (const std::string &prefix, QueueNode<T1> *root, bool left)
 {
     if (!root) return ;
     std::cout << prefix << (left ? "├──" : "└──" ) << *(root->key) << std::endl;
-    _tree_print(prefix + (left ? "│  " : "   "), root->left, true);
-    _tree_print(prefix + (left ? "│  " : "   "), root->right, false);
+    _print(prefix + (left ? "│  " : "   "), root->left, true);
+    _print(prefix + (left ? "│  " : "   "), root->right, false);
 }
 
 #endif

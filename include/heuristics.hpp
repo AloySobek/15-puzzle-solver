@@ -2,7 +2,7 @@
  * File              : heuristics.hpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 03.04.2021 16:18
- * Last Modified Date: 05.04.2021 18:35
+ * Last Modified Date: 10.04.2021 00:50
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -12,7 +12,7 @@
 # include <cstdint>
 # include "state.hpp"
 
-int64_t hamming(State *final, State *intermediate);
-int64_t manhattan(State *final, State *intermediate);
+void hamming(const State *final, State *intermediate);
+void manhattan(const State *final, State *intermediate);
 
 #endif

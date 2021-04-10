@@ -1,8 +1,7 @@
-/**
- * File              : solver.hpp
+/** * File              : solver.hpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 25.03.2021 13:34
- * Last Modified Date: 05.04.2021 18:35
+ * Last Modified Date: 10.04.2021 00:50
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -14,7 +13,6 @@
 # include <cstdint>
 # include <string>
 # include <cmath>
-# include <queue>
 # include <map>
 
 # include "state.hpp"
@@ -30,22 +28,21 @@ public:
         heuristics["manhattan"] = manhattan;
     }
 
-    bool is_solvable(State *initial_state);
-    void solve(State *final_state, State *initial_state, const std::string &heuristic);
+    bool is_solvable(const State *final, const State *initial);
+    void solve(const State *final, State *initial, const std::string &h);
     
 private:
-    std::map<std::string, int64_t (*)(State *, State *)> heuristics;
+    std::map<std::string, void (*)(const State *, State *)> heuristics;
+    PriorityQueue<State> opened, closed;
 
-    PriorityQueue<State> opened;
-    PriorityQueue<State> closed;
-
-    State *_up_move(State *final_state, State *state, const std::string &heuristic);
-    State *_down_move(State *final_state, State *state, const std::string &heuristic);
-    State *_right_move(State *final_state, State *state, const std::string &heuristic);
-    State *_left_move(State *final_state, State *state, const std::string &heuristic);
-    
-    int64_t _get_inversion_count(std::vector<std::vector<int64_t>> &puzzle);
-    int64_t _find_zero(std::vector<std::vector<int64_t>> &puzzle);
+    void _left_move(const State *final,
+            const State *intermediate, const std::string &h);
+    void _right_move(const State *final,
+            const State *intermediate, const std::string &h);
+    void _up_move(const State *final,
+            const State *intermediate, const std::string &h);
+    void _down_move(const State *final,
+            const State *intermediate, const std::string &h);
 };
 
 #endif

@@ -2,12 +2,11 @@
  * File              : parser.cpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 02.04.2021 21:29
- * Last Modified Date: 06.04.2021 15:10
+ * Last Modified Date: 09.04.2021 23:53
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
 #include "parser.hpp"
-#include <stdexcept>
 
 void Parser::parse_cmd_options(int argc, char **argv)
 {
@@ -16,7 +15,9 @@ void Parser::parse_cmd_options(int argc, char **argv)
     options.add_options()
         ("help,h", "Show help message")
         ("puzzle,p", po::value<std::string>()->required(), "puzzle file")
-        ("heuristic,e", po::value<std::string>()->default_value("hamming"),
+        ("solution,s", po::value<std::string>()->default_value("snail"),
+         "solution pattern")
+        ("heuristic,e", po::value<std::string>()->default_value("manhattan"),
          "heuristic function");
 
     po::store(po::parse_command_line(argc, argv, options), var_map);
@@ -86,40 +87,48 @@ State *Parser::get_initial_state()
     return (state);
 }
 
-State *Parser::get_final_state()
+const State *Parser::get_final_state()
 {
     State *state{new State()};
-    std::vector<int64_t> row;
 
-    for (int64_t y{0}; y < pzl_n; ++y, row.clear())
+    if (var_map["solution"].as<std::string>() == "snail")
     {
-        for (int64_t x{0}; x < pzl_n; ++x)
-            row.push_back(pzl_n * y + x + 1); 
-        state->pzl.push_back(row);
+        switch(pzl_n) {
+            case 2:
+                state->pzl = {{1, 2}, {0, 3}};
+                state->x = 0, state->y = 1;
+                break;
+            case 3:
+                state->pzl = {{1, 2, 3}, {8, 0, 4}, {7, 6, 5}};
+                state->x = 1, state->y = 1;
+                break;
+            case 4:
+                state->pzl = {{1, 2, 3, 4}, {12, 13, 14, 5}, {11, 0, 15, 6}, {10, 9, 8, 7}};
+                state->x = 1, state->y = 2;
+                break;
+        }
     }
-    state->pzl[pzl_n - 1][pzl_n - 1] = 0;
+    else if (var_map["solution"].as<std::string>() == "classic")
+    {
+        switch(pzl_n) {
+            case 2:
+                state->pzl = {{1, 2}, {3, 0}};
+                state->x = 1, state->y = 1;
+                break;
+            case 3:
+                state->pzl = {{1, 2, 3}, {4, 5, 6}, {7, 8, 0}};
+                state->x = 2, state->y = 2;
+                break;
+            case 4:
+                state->pzl = {{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 11, 12}, {13, 14, 15, 0}};
+                state->x = 3, state->y = 3;
+                break;
+        }
+    }
     return (state);
 }
 
-State *Parser::_get_final_state()
-{
-    State *state{new State()};
-
-    switch(pzl_n) {
-        case 2:
-            state->pzl = {{1, 2}, {0, 3}};
-            break;
-        case 3:
-            state->pzl = {{1, 2, 3}, {8, 0, 4}, {7, 6, 5}};
-            break;
-        case 4:
-            state->pzl = {{1, 2, 3, 4}, {12, 13, 14, 5}, {11, 0, 15, 6}, {10, 9, 8, 7}};
-            break;
-    }
-    return (state);
-}
-
-std::string Parser::get_heuristic()
+const std::string Parser::get_heuristic()
 {
     return (var_map["heuristic"].as<std::string>());
 }

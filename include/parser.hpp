@@ -2,7 +2,7 @@
  * File              : parser.hpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 25.03.2021 15:05
- * Last Modified Date: 05.04.2021 14:28
+ * Last Modified Date: 09.04.2021 23:19
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -29,10 +29,9 @@ public:
     void parse_puzzle_file();
 
     State *get_initial_state();
-    State *get_final_state();
-    State *_get_final_state();
+    const State *get_final_state();
 
-    std::string get_heuristic();
+    const std::string get_heuristic();
 
 private:
     std::vector<std::string> pzl_lines;
