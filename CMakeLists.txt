@@ -11,7 +11,6 @@ add_executable(
     ${PROJECT_SOURCE_DIR}/src/main.cpp
     ${PROJECT_SOURCE_DIR}/src/parser.cpp
     ${PROJECT_SOURCE_DIR}/src/solver.cpp
-    ${PROJECT_SOURCE_DIR}/src/state.cpp
     ${PROJECT_SOURCE_DIR}/src/heuristics.cpp
 )
 

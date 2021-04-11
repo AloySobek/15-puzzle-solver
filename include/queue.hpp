@@ -2,7 +2,7 @@
  * File              : queue.hpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 31.03.2021 00:50
- * Last Modified Date: 10.04.2021 15:36
+ * Last Modified Date: 11.04.2021 20:15
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -37,11 +37,11 @@ public:
     void push(T1 *key) { if (key) q_root = _push(q_root, key); }
     void pop()         { q_root = _pop(q_root); };
 
-    T1 *top()             { QueueNode<T1> *tmp = _top(q_root); return tmp ? tmp->key : nullptr;};
-    T1 *contains(T1 *key) { QueueNode<T1> *tmp = _contains(q_root, key); return tmp ? tmp->key : nullptr; }
+    T1 *top()             { auto *t = _top(q_root); return t ? t->key : nullptr; }
+    T1 *contains(T1 *key) { auto *t = _contains(q_root, key); return t ? t->key : nullptr; }
 
-    bool empty() { return (q_root ? false : true); }
     void print() { _print("", q_root, false); }
+    bool empty() { return (q_root ? false : true); }
     
     QueueNode<T1> *q_root{nullptr};
 private:

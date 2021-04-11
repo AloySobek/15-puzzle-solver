@@ -2,7 +2,7 @@
  * File              : heuristics.cpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 03.04.2021 16:17
- * Last Modified Date: 10.04.2021 00:51
+ * Last Modified Date: 11.04.2021 23:28
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -15,22 +15,26 @@ void hamming(const State *final, State *intermediate)
 {
     intermediate->h = 0;
 
-    for (uint64_t y{0}; y < final->pzl.size(); ++y)
-        for (uint64_t x{0}; x < final->pzl[y].size(); ++x)
-            if (intermediate->pzl[y][x] != 0 && intermediate->pzl[y][x] != final->pzl[y][x])
-                ++(intermediate->h);
+    for (uint64_t i{0}, size{final->pzl.size()}; i < size; ++i)
+        if (intermediate->pzl[i] != 0 && intermediate->pzl[i] != final->pzl[i])
+            ++(intermediate->h);
 }
 
 void manhattan(const State *final, State *intermediate)
 {
     intermediate->h = 0;
 
-    for (int64_t y{0}; y < (int64_t)final->pzl.size(); ++y)
-        for (int64_t x{0}; x < (int64_t)final->pzl[y].size(); ++x)
-            if (intermediate->pzl[y][x] != 0 && intermediate->pzl[y][x] != final->pzl[y][x])
-                for (int64_t y2{0}; y2 < (int64_t)final->pzl.size(); ++y2)
-                    for (int64_t x2{0}; x2 < (int64_t)final->pzl[y2].size(); ++x2) 
-                        if (final->pzl[y2][x2] == intermediate->pzl[y][x])
-                            intermediate->h += std::abs(std::max(x2, x) - std::min(x2, x))
-                                + std::abs(std::max(y2, y) - std::min(y2, y));
+    for (uint64_t i{0}, isize{final->pzl.size()}; i < isize; ++i)
+        if (intermediate->pzl[i] != 0 && intermediate->pzl[i] != final->pzl[i])
+            for (uint64_t j{0}, jsize{final->pzl.size()}; j < jsize; ++j)
+                if (intermediate->pzl[j] == final->pzl[i])
+                    intermediate->h += (std::max(i % final->n, j % final->n) -
+                                        std::min(i % final->n, j % final->n)) +
+                                       (std::max(i / final->n, j / final->n) -
+                                        std::min(i / final->n, j / final->n));
+}
+
+void linear_conflicts(const State *final, State *intermediate)
+{
+    manhattan(final, intermediate);
 }

@@ -2,7 +2,7 @@
  * File              : state.hpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 29.03.2021 00:27
- * Last Modified Date: 10.04.2021 12:53
+ * Last Modified Date: 11.04.2021 23:48
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -16,36 +16,45 @@
 class State
 {
 public:
-    std::vector<std::vector<int64_t>> pzl;
+    std::vector<int64_t> pzl;
     const State *parent{nullptr};
-    int64_t g{0}, h{0};
-    int64_t x{0}, y{0};
+    int64_t g{0}, h{0}, i{0}, n{0};
+
+    State() { }
+
+    State(const State *other)
+    {
+        this->pzl = other->pzl;
+        this->parent = other;
+        this->g = other->g;
+        this->h = other->h;
+        this->i = other->i;
+        this->n = other->n;
+    }
     
     friend bool operator<(const State &l, const State &r)
     {
-        return (l.g + l.h < r.g + r.h);
+        return ((l.g + l.h) < (r.g + r.h));
     }
+
     friend bool operator>(const State &l, const State &r)
     {
-        return (l.g + l.h > r.g + r.h);
+        return ((l.g + l.h) > (r.g + r.h));
     }
 
     friend bool operator>=(const State &l, const State &r)
     {
-        return (l.g + l.h >= r.g + r.h);
+        return ((l.g + l.h) >= (r.g + r.h));
     }
+
     friend bool operator<=(const State &l, const State &r)
     {
-        return (l.g + l.h <= r.g + r.h);
+        return ((l.g + l.h) <= (r.g + r.h));
     }
 
     friend bool operator==(const State &l, const State &r)
     {
-        for (uint64_t i{0}; i < l.pzl.size(); ++i)
-            for (uint64_t j{0}; j < l.pzl.size(); ++j)
-                if (l.pzl[i][j] != r.pzl[i][j])
-                    return (false);
-        return (true);
+        return (l.pzl == r.pzl);
     }
 
     friend std::ostream &operator<<(std::ostream &os, const State &obj)
@@ -54,21 +63,11 @@ public:
         return (os);
     }
 
-    void copy(const State *other)
+    void print() const
     {
-        this->pzl = other->pzl;
-        this->parent = other;
-        this->g = other->g;
-        this->h = other->h;
-        this->x = other->x;
-        this->y = other->y;
-    }
-
-    void print() const;
-
-    ~State()
-    {
-        std::cout << "Deleted" << std::endl;
+        for (uint64_t i{0}, size{pzl.size()}; i < size; ++i)
+            std::cout << pzl[i] << " ";
+        std::cout << std::endl;
     }
 };
 

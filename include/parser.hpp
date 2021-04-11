@@ -2,7 +2,7 @@
  * File              : parser.hpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 25.03.2021 15:05
- * Last Modified Date: 09.04.2021 23:19
+ * Last Modified Date: 10.04.2021 22:21
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -23,7 +23,17 @@ namespace po = boost::program_options;
 class Parser
 {
 public:
-    Parser() : pzl_n{0} {}
+    Parser()
+    {
+        possible_heuristics.push_back("hamming");
+        possible_heuristics.push_back("manhattan");
+        possible_heuristics.push_back("linear-conflicts");
+        possible_heuristics.push_back("database");
+
+        possible_solution_patterns.push_back("snail");
+        possible_solution_patterns.push_back("classic");
+        possible_solution_patterns.push_back("first-zero");
+    }
 
     void parse_cmd_options(int argc, char **argv);
     void parse_puzzle_file();
@@ -34,9 +44,10 @@ public:
     const std::string get_heuristic();
 
 private:
+    std::vector<std::string> possible_solution_patterns;
+    std::vector<std::string> possible_heuristics;
     std::vector<std::string> pzl_lines;
     po::variables_map        var_map;
-    int64_t                  pzl_n;
 };
 
 #endif

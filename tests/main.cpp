@@ -2,7 +2,7 @@
  * File              : main.cpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 28.03.2021 01:10
- * Last Modified Date: 10.04.2021 15:40
+ * Last Modified Date: 11.04.2021 21:28
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -28,7 +28,6 @@ int main()
     test.print();
     test.pop();
     test.print();
-    exit(0);
     test.pop();
 
     test.push(new int64_t(10));
@@ -40,20 +39,20 @@ int main()
     test.push(new int64_t(10));
     test.push(new int64_t(10));
 
-    /* test.pop(); */
-    /* test.pop(); */
-    /* test.pop(); */
-    /* test.pop(); */
-    /* test.pop(); */
-    /* test.pop(); */
-    /* test.pop(); */
-    /* test.pop(); */
-    /* test.pop(); */
-    /* test.pop(); */
-    /* test.pop(); */
-    /* test.pop(); */
-    /* test.pop(); */
-    /* test.pop(); */
+    test.pop();
+    test.pop();
+    test.pop();
+    test.pop();
+    test.pop();
+    test.pop();
+    test.pop();
+    test.pop();
+    test.pop();
+    test.pop();
+    test.pop();
+    test.pop();
+    test.pop();
+    test.pop();
 
     test.print();
 

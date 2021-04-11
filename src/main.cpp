@@ -2,7 +2,7 @@
  * File              : main.cpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 25.03.2021 13:28
- * Last Modified Date: 10.04.2021 00:40
+ * Last Modified Date: 11.04.2021 21:16
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -29,7 +29,7 @@ int main(int argc, char **argv)
         std::cout << e.what() << std::endl;
         return (-1);
     }
-
+    
     try
     {
         if (solver->is_solvable(parser->get_final_state(),
