@@ -1,0 +1,47 @@
+/**
+ * File              : program-state.hpp
+ * Author            : Rustam Khafizov <super.rustamm@gmail.com>
+ * Date              : 05.05.2021 19:19
+ * Last Modified Date: 05.05.2021 23:37
+ * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
+ */
+
+#ifndef PROGRAM_STATE_HPP
+# define PROGRAM_STATE_HPP
+
+# include <string>
+
+# include "state.hpp"
+
+class ProgramState
+{
+protected:
+    ProgramState() { }
+
+public:
+    std::string heuristic{"manhattan"};
+    std::string algorithm{"A*"};
+    std::string algo_type{"UCS+GREEDY"};
+
+    ProgramState(ProgramState &) = delete;
+    void operator=(const ProgramState &) = delete;
+
+    static ProgramState *instance()
+    {
+        static ProgramState *instance_ = nullptr;
+
+        if (!instance_)
+            instance_ = new ProgramState();
+        return (instance_);
+    }
+
+    static void destroy()
+    {
+        static ProgramState *instance_;
+
+        if (instance_)
+            delete instance_;
+    }
+};
+
+#endif
