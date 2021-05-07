@@ -2,7 +2,7 @@
  * File              : program-state.hpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 05.05.2021 19:19
- * Last Modified Date: 05.05.2021 23:37
+ * Last Modified Date: 06.05.2021 21:25
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -22,6 +22,8 @@ public:
     std::string heuristic{"manhattan"};
     std::string algorithm{"A*"};
     std::string algo_type{"UCS+GREEDY"};
+    uint64_t    expanded_nodes{0};
+    uint64_t    visited_nodes{0};
 
     ProgramState(ProgramState &) = delete;
     void operator=(const ProgramState &) = delete;

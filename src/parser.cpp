@@ -2,7 +2,7 @@
  * File              : parser.cpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 02.04.2021 21:29
- * Last Modified Date: 05.05.2021 23:56
+ * Last Modified Date: 06.05.2021 00:09
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -18,10 +18,10 @@ void Parser::parse_cmd_options(int argc, char **argv)
         ("help", "show help message")
         ("puzzle,p", po::value<std::string>(), "puzzle file")
         ("random,r", po::value<uint64_t>()->default_value(3), "random puzzle")
-        ("algorithm,a", po::value<std::string>()->default_value("A*"),
-         "solve algorithm")
         ("solution,s", po::value<std::string>()->default_value("snail"),
          "solution pattern")
+        ("algorithm,a", po::value<std::string>()->default_value("A*"),
+         "solve algorithm")
         ("algo-type,t", po::value<std::string>()->default_value("UCS+GREEDY"),
          "solve algorithm type")
         ("heuristic,h", po::value<std::string>()->default_value("manhattan"),

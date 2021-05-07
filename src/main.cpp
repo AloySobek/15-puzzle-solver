@@ -2,12 +2,13 @@
  * File              : main.cpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 03.05.2021 17:49
- * Last Modified Date: 06.05.2021 00:06
+ * Last Modified Date: 06.05.2021 23:10
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
 #include <sys/resource.h>
 #include <exception>
+#include <ncurses.h>
 #include <cstdint>
 #include <cmath>
 
@@ -42,6 +43,9 @@ int main(int argc, char **argv)
         print_result(solver->solve(initial, final));
     else
         std::cout << "Sorry, your puzzle is not solvable!" << std::endl;
+
+    std::cout << "Visited nodes: " << ProgramState::instance()->visited_nodes << std::endl;
+    std::cout << "Expanded nodes: " << ProgramState::instance()->expanded_nodes << std::endl;
 
     delete parser;
     delete solver;

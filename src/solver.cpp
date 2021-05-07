@@ -2,7 +2,7 @@
  * File              : solver.cpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 02.04.2021 21:57
- * Last Modified Date: 06.05.2021 00:01
+ * Last Modified Date: 08.05.2021 01:52
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -46,12 +46,14 @@ State *Solver::solve(State *initial, const State *final)
     queue.push(heuristics[ProgramState::instance()->heuristic](final, initial));
     opened[initial->to_string()] = initial;
 
-    while (!queue.empty() && ++visited_nodes)
+    while (!queue.empty())
     {
         State *intermediate = queue.top();
         queue.pop();
 
-        if (intermediate->h == 0)
+        ++ProgramState::instance()->visited_nodes;
+
+        if (intermediate->pzl == final->pzl)
             return (intermediate);
 
         opened.erase(intermediate->to_string());
@@ -63,25 +65,9 @@ State *Solver::solve(State *initial, const State *final)
             left->pzl[left->zero_position] = left->pzl[left->zero_position - 1]; 
             left->pzl[left->zero_position - 1] = 0;
             heuristics[ProgramState::instance()->heuristic](final, left);
-            left->g += 1;
+            left->g += ProgramState::instance()->algo_type == "GREEDY" ? 0 : 1;
             left->zero_position -= 1;
-
-            if (closed.find(left->to_string()) == closed.end())
-            {
-                if (opened.find(left->to_string()) == opened.end())
-                {
-                    opened[left->to_string()] = left;
-                    queue.push(left), ++expanded_nodes;
-                }
-                else
-                {
-                    if (opened[left->to_string()]->g > left->g)
-                    {
-                        opened[left->to_string()] = left;
-                        queue.push(left), ++expanded_nodes;
-                    }
-                }
-            }
+            analyze_state(left);
         }
         if ((intermediate->zero_position % intermediate->size) + 1 < intermediate->size)
         {
@@ -89,25 +75,9 @@ State *Solver::solve(State *initial, const State *final)
             right->pzl[right->zero_position] = right->pzl[right->zero_position + 1];
             right->pzl[right->zero_position + 1] = 0;
             heuristics[ProgramState::instance()->heuristic](final, right);
-            right->g += 1;
+            right->g += ProgramState::instance()->algo_type == "GREEDY" ? 0 : 1;
             right->zero_position += 1;
-
-            if (closed.find(right->to_string()) == closed.end())
-            {
-                if (opened.find(right->to_string()) == opened.end())
-                {
-                    opened[right->to_string()] = right;
-                    queue.push(right), ++expanded_nodes;
-                }
-                else
-                {
-                    if (opened[right->to_string()]->g > right->g)
-                    {
-                        opened[right->to_string()] = right;
-                        queue.push(right), ++expanded_nodes;
-                    }
-                }
-            }
+            analyze_state(right);
         }
         if ((int64_t)(intermediate->zero_position / intermediate->size) - 1 >= 0)
         {
@@ -117,25 +87,9 @@ State *Solver::solve(State *initial, const State *final)
             up->pzl[up->zero_position] = up->pzl[up->zero_position - up->size];
             up->pzl[up->zero_position - up->size] = 0;
             heuristics[ProgramState::instance()->heuristic](final, up);
-            up->g += 1;
+            up->g += ProgramState::instance()->algo_type == "GREEDY" ? 0 : 1;
             up->zero_position -= up->size;
-
-            if (closed.find(up->to_string()) == closed.end())
-            {
-                if (opened.find(up->to_string()) == opened.end())
-                {
-                    opened[up->to_string()] = up;
-                    queue.push(up), ++expanded_nodes;
-                }
-                else
-                {
-                    if (opened[up->to_string()]->g > up->g)
-                    {
-                        opened[up->to_string()] = up;
-                        queue.push(up), ++expanded_nodes;
-                    }
-                }
-            }
+            analyze_state(up);
         }
         if ((intermediate->zero_position / intermediate->size) + 1 < intermediate->size)
         {
@@ -143,37 +97,44 @@ State *Solver::solve(State *initial, const State *final)
             down->pzl[down->zero_position] = down->pzl[down->zero_position + down->size];
             down->pzl[down->zero_position + down->size] = 0;
             heuristics[ProgramState::instance()->heuristic](final, down);
-            down->g += 1;
+            down->g += ProgramState::instance()->algo_type == "GREEDY" ? 0 : 1;
             down->zero_position += down->size;
-
-            if (closed.find(down->to_string()) == closed.end())
-            {
-                if (opened.find(down->to_string()) == opened.end())
-                {
-                    opened[down->to_string()] = down;
-                    queue.push(down), ++expanded_nodes;
-                }
-                else
-                {
-                    if (opened[down->to_string()]->g > down->g)
-                    {
-                        opened[down->to_string()] = down;
-                        queue.push(down), ++expanded_nodes;
-                    }
-                }
-            }
+            analyze_state(down);
         }
     }
     return (nullptr);
+}
+
+void Solver::analyze_state(State *candidate)
+{
+    if (closed.find(candidate->to_string()) == closed.end())
+    {
+        if (opened.find(candidate->to_string()) == opened.end())
+        {
+            opened[candidate->to_string()] = candidate;
+            queue.push(candidate), ++ProgramState::instance()->expanded_nodes;
+        }
+        else
+        {
+            if (opened[candidate->to_string()]->g > candidate->g)
+            {
+                opened[candidate->to_string()] = candidate;
+                queue.push(candidate), ++ProgramState::instance()->expanded_nodes;
+            }
+        }
+    }
 }
 
 State *hamming(const State *final, State *intermediate)
 {
     intermediate->h = 0;
 
+    if (ProgramState::instance()->algo_type == "UCS")
+        return (intermediate);
     for (uint64_t i{0}, size{final->pzl.size()}; i < size; ++i)
         if (intermediate->pzl[i] != 0 && intermediate->pzl[i] != final->pzl[i])
             ++(intermediate->h);
+    
     return (intermediate);
 }
 
@@ -181,6 +142,9 @@ State *manhattan(const State *final, State *intermediate)
 {
     uint64_t size{final->size};
     intermediate->h = 0;
+
+    if (ProgramState::instance()->algo_type == "UCS")
+        return (intermediate);
 
     for (uint64_t i{0}, isize{final->pzl.size()}; i < isize; ++i)
         if (intermediate->pzl[i] != 0 && intermediate->pzl[i] != final->pzl[i])
@@ -195,6 +159,47 @@ State *manhattan(const State *final, State *intermediate)
 
 State *linear_conflicts(const State *final, State *intermediate)
 {
+    uint64_t conflicts{0};
+
+    if (ProgramState::instance()->algo_type == "UCS")
+        return (intermediate);
+
     manhattan(final, intermediate);
+
+    int8_t pR[(final->size * final->size) + 1];
+    int8_t pC[(final->size * final->size) + 1];
+
+    for (uint64_t r = 0; r < final->size; r++) {
+        for (uint64_t c = 0; c < final->size; c++) {
+            pR[intermediate->pzl[(r * final->size) + c]] = static_cast<int8_t>(r);
+            pC[intermediate->pzl[(r * final->size) + c]] = static_cast<int8_t>(c);
+        }
+    }
+    for (uint64_t r{0}; r < final->size; r++) {
+        for (uint64_t cl{0}; cl < final->size; cl++) {
+            for (uint64_t cr = cl + 1; cr < final->size; cr++) {
+                if (final->pzl[(r * final->size) + cl]
+                    && final->pzl[(r * final->size) + cr]
+                    && (int8_t)r == pR[final->pzl[(r * final->size) + cl]]
+                    && pR[final->pzl[(r * final->size) + cl]] == pR[final->pzl[(r * final->size) + cr]]
+                    && pC[final->pzl[(r * final->size) + cl]] > pC[final->pzl[(r * final->size) + cr]])
+                        ++conflicts;
+            }
+        }
+    }
+    for (uint64_t c = 0; c < final->size; c++) {
+        for (uint64_t rU = 0; rU < final->size; rU++) {
+            for (uint64_t rD = rU + 1; rD < final->size; rD++) {
+                if (final->pzl[(rU * final->size) + c]
+                    && final->pzl[(rD * final->size)]
+                    && (int8_t)c == pC[final->pzl[(rU * final->size)]]
+                    && pC[final->pzl[(rU * final->size)]] == pC[final->pzl[(rD * final->size)]]
+                    && pR[final->pzl[(rU * final->size)]] > pR[final->pzl[(rD * final->size)]]) {
+                        ++conflicts;
+                }
+            }
+        }
+    }
+    intermediate->h += 2 * conflicts;
     return (intermediate);
 }
