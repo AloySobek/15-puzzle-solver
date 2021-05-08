@@ -15,18 +15,20 @@
 
 class State
 {
+private:
+    std::string key;
 public:
     std::vector<int64_t> pzl;     // Puzzle itself in 1d array
-    const State *parent{nullptr}; // For path reconstruction
+    State *parent{nullptr}; // For path reconstruction
     uint64_t zero_position{0};    // Where is empty tile located
     uint64_t size{0};             // Size of one side of puzzle
     uint64_t g{0};                // Distance from source
     uint64_t h{0};                // Distance to destination
 
-    State() { }
-    State(const State *other);
+    State() = default;
+    explicit State(State *other);
 
-    std::string to_string() const;
+    std::string &to_string();
     std::string row_to_string(uint64_t n) const;
 
     friend bool operator<(const State &l, const State &r)

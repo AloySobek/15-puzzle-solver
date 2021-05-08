@@ -9,7 +9,7 @@
 #include "state.hpp"
 #include <string>
 
-State::State(const State *other)
+State::State(State *other)
 {
     this->zero_position = other->zero_position;
     this->parent = other;
@@ -25,14 +25,16 @@ std::ostream &operator<<(std::ostream &os, const State &obj)
     return (os);
 }
 
-std::string State::to_string() const
+std::string& State::to_string()
 {
+    if (!key.empty())
+        return key;
     std::string state_as_string("");
 
     for (uint64_t i{0}, size{pzl.size()}; i < size; ++i)
         state_as_string += std::to_string(pzl[i]) + " ";
-
-    return (state_as_string);
+    key = std::string(state_as_string);
+    return (key);
 }
 
 std::string State::row_to_string(uint64_t n) const

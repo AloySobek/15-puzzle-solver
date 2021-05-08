@@ -17,7 +17,7 @@
 
 #include "program-state.hpp"
 
-void  print_solved(const State *s, uint64_t *moves)
+void  print_solved(State *s, uint64_t *moves)
 {
     if (!s)
         return ;
