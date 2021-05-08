@@ -53,6 +53,7 @@ private:
 
     State *from_random(uint64_t n);
     State *from_lines(std::vector<std::string> &lines);
+    bool gen_snail_final_state(int32_t size, std::vector<int64_t> &out, uint64_t &final_position);
 };
 
 #endif

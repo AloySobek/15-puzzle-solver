@@ -76,6 +76,71 @@ State *Parser::get_initial_state()
     return (from_lines(lines));
 }
 
+bool Parser::gen_snail_final_state(int32_t size, std::vector<int64_t> &out, uint64_t &final_position)
+{
+        // Check that we are not overflow
+    if ((double)size > std::sqrt((size_t)INT64_MAX))
+        return false;
+
+    auto** goal = new int64_t*[size];
+    auto result = new std::vector<int64_t>(size*size);
+    for(int64_t i = 0; i < size; ++i) {
+        goal[i] = new int64_t[size]{0};
+    }
+
+    auto step = (int64_t)size;
+	typedef struct { int64_t x, y; int64_t *c; } t_xy;
+
+	// Will move cursor in snail pattern
+	// ----->
+	// ^--->|
+	// |<--||
+	// <----|
+    auto cursor = t_xy{0, 0, nullptr};
+
+    // Store current direction of th snail that we will alternate and swap
+    auto dir = t_xy{1, -1, nullptr};
+
+    cursor.c = &cursor.x;
+    dir.c = &dir.x;
+
+	int64_t t = 1;
+	for (int64_t i = 1; i <= 2*size - 2 ; i++)
+    {
+        step -= i % 2 == 0;
+	    for (int64_t j = 0; j < step; j++)
+        {
+	        goal[cursor.y][cursor.x] = t;
+            (*cursor.c) += j < step - 1 ? *dir.c : 0;
+            t++;
+        }
+
+	    // swap current cursor axis and direction axis
+	    if (cursor.c == &cursor.x)
+        {
+            cursor.c = &cursor.y;
+	        dir.c = &dir.y;
+        } else {
+            cursor.c = &cursor.x;
+            dir.c = &dir.x;
+	    }
+	    // Alternate current direction
+        (*dir.c) *= -1;
+
+	    // Advance one forward as it is already filled on last iteration of the step
+        (*cursor.c) += *dir.c;
+    }
+    for(int64_t y = 0; y < size; ++y)
+    {
+        for(int64_t x = 0; x < size; ++x)
+            out.push_back(goal[y][x]);
+        delete[] goal[y];
+    }
+    delete[] goal;
+    final_position = cursor.y * size + cursor.x;
+	return true;
+}
+
 const State *Parser::get_final_state()
 {
     std::vector<std::string> lines;
@@ -101,14 +166,7 @@ const State *Parser::get_final_state()
 
     if (var_map["solution"].as<std::string>() == "snail")
     {
-        switch(final->size) {
-            case 2:
-                final->pzl = {1, 2, 0, 3}; final->zero_position = 2; break;
-            case 3:
-                final->pzl = {1, 2, 3, 8, 0, 4, 7, 6, 5}; final->zero_position = 4; break;
-            case 4:
-                final->pzl = {1, 2, 3, 4, 12, 13, 14, 5, 11, 0, 15, 6, 10, 9, 8, 7}; final->zero_position = 9; break;
-        }
+        gen_snail_final_state(final->size, final->pzl, final->zero_position);
     }
     else if (var_map["solution"].as<std::string>() == "classic")
     {
