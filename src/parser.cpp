@@ -76,19 +76,20 @@ State *Parser::get_initial_state()
     return (from_lines(lines));
 }
 
-bool Parser::gen_snail_final_state(int32_t size, std::vector<int64_t> &out, uint64_t &final_position)
+bool Parser::gen_snail_final_state(uint64_t size, std::vector<int64_t> &out, uint64_t &final_position)
 {
     // Check that we are not overflow
-    if ((double)size > std::sqrt((size_t)INT64_MAX))
+    if (size > SIZE_MAX || (double)size > std::sqrt(UINT64_MAX))
         return false;
 
-    auto** goal = new int64_t*[size];
-    for(int64_t i = 0; i < size; ++i) {
-        goal[i] = new int64_t[size]{0};
+    auto** goal = new uint64_t*[size];
+    for(uint64_t i = 0; i < size; ++i) {
+        goal[i] = new uint64_t[size]{0};
     }
 
-    auto step = (int64_t)size;
-    typedef struct { int64_t x, y; int64_t *c; } t_xy;
+    auto step = size;
+    typedef struct { uint64_t x, y; uint64_t *c; } t_xy;
+    typedef struct { short x, y; short *c; } t_dxy;
 
     // Will move cursor in snail pattern
     // ----->
@@ -98,16 +99,16 @@ bool Parser::gen_snail_final_state(int32_t size, std::vector<int64_t> &out, uint
     auto cursor = t_xy{0, 0, nullptr};
 
     // Store current direction of th snail that we will alternate and swap
-    auto dir = t_xy{1, -1, nullptr};
+    auto dir = t_dxy{1, -1, nullptr};
 
     cursor.c = &cursor.x;
     dir.c = &dir.x;
 
-    int64_t t = 1;
-    for (int64_t i = 1; i <= 2*size - 2 ; i++)
+    uint64_t t = 1;
+    for (uint64_t i = 1; i <= 2*size - 2 ; i++)
     {
         step -= i % 2 == 0;
-        for (int64_t j = 0; j < step; j++)
+        for (uint64_t j = 0; j < step; j++)
         {
             goal[cursor.y][cursor.x] = t;
             (*cursor.c) += j < step - 1 ? *dir.c : 0;
@@ -129,10 +130,10 @@ bool Parser::gen_snail_final_state(int32_t size, std::vector<int64_t> &out, uint
         // Advance one forward as it is already filled on last iteration of the step
         (*cursor.c) += *dir.c;
     }
-    for(int64_t y = 0; y < size; ++y)
+    for(uint64_t y = 0; y < size; ++y)
     {
-        for(int64_t x = 0; x < size; ++x)
-            out.push_back(goal[y][x]);
+        for(uint64_t x = 0; x < size; ++x)
+            out.push_back((int64_t)goal[y][x]);
         delete[] goal[y];
     }
     delete[] goal;
