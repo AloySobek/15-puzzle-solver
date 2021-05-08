@@ -113,12 +113,14 @@ void Solver::analyze_state(State *candidate, const State *final)
     candidate->g += ProgramState::instance()->algo_type == "GREEDY" ? 0 : 1;
     heuristics[ProgramState::instance()->heuristic](final, candidate);
     candidate->h = ProgramState::instance()->algo_type == "UCS" ? 0 : candidate->h;
+    bool pushed = false;
     if (closed.find(candidate->to_string()) == closed.end())
     {
         if (opened.find(candidate->to_string()) == opened.end())
         {
             opened[candidate->to_string()] = candidate;
             queue.push(candidate), ++ProgramState::instance()->expanded_nodes;
+            pushed = true;
         }
         else
         {
@@ -126,8 +128,21 @@ void Solver::analyze_state(State *candidate, const State *final)
             {
                 opened[candidate->to_string()] = candidate;
                 queue.push(candidate), ++ProgramState::instance()->expanded_nodes;
+                pushed = true;
             }
         }
+    }
+    if (!pushed)
+        delete candidate;
+}
+
+Solver::~Solver() {
+    for (const auto &item : closed)
+        delete item.second;
+    while (!queue.empty())
+    {
+        delete queue.top();
+        queue.pop();
     }
 }
 

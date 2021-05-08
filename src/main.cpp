@@ -68,6 +68,5 @@ int main(int argc, char **argv)
     delete solver;
 
     ProgramState::destroy();
-
-    return (0);
+    exit(0);
 }

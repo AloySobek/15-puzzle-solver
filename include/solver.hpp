@@ -39,6 +39,7 @@ public:
         heuristics["manhattan"] = manhattan;
         heuristics["linear-conflicts"] = linear_conflicts;
     }
+    ~Solver();
 
     bool  is_solvable(State *initial, const State *final);
     State *solve(State *initial, const State *final);
