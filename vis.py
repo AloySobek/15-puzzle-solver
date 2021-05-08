@@ -55,9 +55,9 @@ def main():
             inp = sys.stdin.readline()
             if inp.strip():
                 print (inp, end='')
-            root.after(delay, update)
             inp = inp.strip().split(' ')
             if all([s.isdigit() for s in inp]):
+                root.after(delay, update)
                 s = int(math.sqrt(len(inp)))
                 state = []
                 for i in range(s):
@@ -68,6 +68,8 @@ def main():
                 
                 root.geometry(f"{len(state) * w + b * (len(state) - 2)}x{len(state) * w + b * (len(state) - 2)}")
                 frame.draw(state)
+            else:
+                root.after(10, update)
         except Exception as e:
             print(e)
             return
