@@ -2,7 +2,7 @@
  * File              : parser.cpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 02.04.2021 21:29
- * Last Modified Date: 08.05.2021 21:49
+ * Last Modified Date: 08.05.2021 21:53
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -240,3 +240,17 @@ State *Parser::from_lines(std::vector<std::string> &lines)
     }
     return (initial);
 }
+
+/* void snail_final(int **puzzle, int *counter, int y, int x, int size, int offset) */
+/* { */
+/*     if (size - (offset + 1) == 0) return; */
+/*     for (int j{x}; j < size - offset; ++j) */
+/*         puzzle[size - (size - offset)][j] = ++(*counter); */
+/*     for (int i{y + 1}; i < size - offset; ++i) */
+/*         puzzle[i][size - offset - 1] = ++(*counter); */
+/*     for (int j{size - offset - 2}; j >= size - (size - offset); --j) */
+/*         puzzle[size - offset - 1][j] = ++(*counter); */
+/*     for (int i{size - offset - 2}; i >= size - (size - (offset + 1)); --i) */
+/*         puzzle[i][size - (size - offset)] = ++(*counter); */
+/*     snail_final(puzzle, counter, y + 1, x + 1, size, offset + 1); */
+/* } */
