@@ -2,7 +2,7 @@
  * File              : solver.cpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 02.04.2021 21:57
- * Last Modified Date: 08.05.2021 21:34
+ * Last Modified Date: 09.05.2021 02:05
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -36,9 +36,9 @@ bool Solver::is_solvable(State *initial, const State *final)
 
     delete tmp;
 
-    if (parity) // is odd
-        return (inv_count % 2);
-    return (!(inv_count % 2)); // is even
+    if (parity)
+        return (inv_count % 2); // is odd
+    return (!(inv_count % 2));  // is even
 }
 
 State *Solver::solve(State *initial, const State *final)
@@ -55,8 +55,10 @@ State *Solver::solve(State *initial, const State *final)
 
         if (intermediate->pzl == final->pzl)
             return (intermediate);
-
+        
         opened.erase(intermediate->to_string());
+        if (closed.find(intermediate->to_string()) != closed.end())
+            delete closed[intermediate->to_string()];
         closed[intermediate->to_string()] = intermediate;
 
         if ((int64_t)(intermediate->zero_position % intermediate->size) - 1 >= 0)
@@ -65,7 +67,8 @@ State *Solver::solve(State *initial, const State *final)
             left->pzl[left->zero_position] = left->pzl[left->zero_position - 1]; 
             left->pzl[left->zero_position - 1] = 0;
             left->zero_position -= 1;
-            analyze_state(left, final);
+            if (!analyze_state(left, final))
+                delete left;
         }
         if ((intermediate->zero_position % intermediate->size) + 1 < intermediate->size)
         {
@@ -73,7 +76,8 @@ State *Solver::solve(State *initial, const State *final)
             right->pzl[right->zero_position] = right->pzl[right->zero_position + 1];
             right->pzl[right->zero_position + 1] = 0;
             right->zero_position += 1;
-            analyze_state(right, final);
+            if (!analyze_state(right, final))
+                delete right;
         }
         if ((int64_t)(intermediate->zero_position / intermediate->size) - 1 >= 0)
         {
@@ -81,7 +85,8 @@ State *Solver::solve(State *initial, const State *final)
             up->pzl[up->zero_position] = up->pzl[up->zero_position - up->size];
             up->pzl[up->zero_position - up->size] = 0;
             up->zero_position -= up->size;
-            analyze_state(up, final);
+            if (!analyze_state(up, final))
+                delete up;
         }
         if ((intermediate->zero_position / intermediate->size) + 1 < intermediate->size)
         {
@@ -89,7 +94,8 @@ State *Solver::solve(State *initial, const State *final)
             down->pzl[down->zero_position] = down->pzl[down->zero_position + down->size];
             down->pzl[down->zero_position + down->size] = 0;
             down->zero_position += down->size;
-            analyze_state(down, final);
+            if (!analyze_state(down, final))
+                delete down;
         }
     }
     return (nullptr);
@@ -99,28 +105,21 @@ State *Solver::solve_ida(State *initial, const State *final)
 {
     if (initial->pzl == final->pzl)
         return (nullptr);
-    /* heuristics[ProgramState::instance()->heuristic](final, initial); */
-    /* uint64_t threshold = initial->h; */
-    /* while (true) */
-    /* { */
-        
-    /* } */
     return (nullptr);
 }
 
-void Solver::analyze_state(State *candidate, const State *final)
+bool Solver::analyze_state(State *candidate, const State *final)
 {
     candidate->g += ProgramState::instance()->algo_type == "GREEDY" ? 0 : 1;
     heuristics[ProgramState::instance()->heuristic](final, candidate);
     candidate->h = ProgramState::instance()->algo_type == "UCS" ? 0 : candidate->h;
-    bool pushed = false;
     if (closed.find(candidate->to_string()) == closed.end())
     {
         if (opened.find(candidate->to_string()) == opened.end())
         {
             opened[candidate->to_string()] = candidate;
             queue.push(candidate), ++ProgramState::instance()->expanded_nodes;
-            pushed = true;
+            return (true);
         }
         else
         {
@@ -128,22 +127,27 @@ void Solver::analyze_state(State *candidate, const State *final)
             {
                 opened[candidate->to_string()] = candidate;
                 queue.push(candidate), ++ProgramState::instance()->expanded_nodes;
-                pushed = true;
+                return (true);
             }
         }
     }
-    if (!pushed)
-        delete candidate;
+    return (false);
 }
 
-Solver::~Solver() {
-    for (const auto &item : closed)
-        delete item.second;
+Solver::~Solver()
+{
+    for (auto i = closed.begin(); i != closed.end(); i = closed.erase(i))
+        delete i->second;
     while (!queue.empty())
     {
-        delete queue.top();
+        State *tmp = queue.top();
         queue.pop();
+        if (opened.find(tmp->to_string()) != opened.end())
+            opened.erase(tmp->to_string());
+        delete tmp;
     }
+    for (auto i = opened.begin(); i != opened.end(); i = opened.erase(i))
+        delete i->second;
 }
 
 State *hamming(const State *final, State *intermediate)
@@ -213,17 +217,3 @@ State *linear_conflicts(const State *final, State *intermediate)
     manhattan(final, intermediate); intermediate->h += 2 * conflicts;
     return (intermediate);
 }
-
-/* void snail_final(int **puzzle, int *counter, int y, int x, int size, int offset) */
-/* { */
-/*     if (size - (offset + 1) == 0) return; */
-/*     for (int j{x}; j < size - offset; ++j) */
-/*         puzzle[size - (size - offset)][j] = ++(*counter); */
-/*     for (int i{y + 1}; i < size - offset; ++i) */
-/*         puzzle[i][size - offset - 1] = ++(*counter); */
-/*     for (int j{size - offset - 2}; j >= size - (size - offset); --j) */
-/*         puzzle[size - offset - 1][j] = ++(*counter); */
-/*     for (int i{size - offset - 2}; i >= size - (size - (offset + 1)); --i) */
-/*         puzzle[i][size - (size - offset)] = ++(*counter); */
-/*     snail_final(puzzle, counter, y + 1, x + 1, size, offset + 1); */
-/* } */

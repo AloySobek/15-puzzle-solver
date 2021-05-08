@@ -2,7 +2,7 @@
  * File              : state.cpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 03.05.2021 19:25
- * Last Modified Date: 08.05.2021 22:16
+ * Last Modified Date: 09.05.2021 00:49
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -40,7 +40,10 @@ std::string State::row_to_string(uint64_t n) const
     std::string row_state_as_string("");
 
     for (uint64_t i{size * n}; i < size * n + size; ++i)
-        row_state_as_string += std::to_string(pzl[i]) + " ";
+        if (size > 3)
+            row_state_as_string += std::to_string(pzl[i]) + (std::to_string(pzl[i]).size() > 1 ? " " : "  ");
+        else
+            row_state_as_string += std::to_string(pzl[i]) + " ";
 
     return (row_state_as_string);
 }
