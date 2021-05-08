@@ -78,24 +78,23 @@ State *Parser::get_initial_state()
 
 bool Parser::gen_snail_final_state(int32_t size, std::vector<int64_t> &out, uint64_t &final_position)
 {
-        // Check that we are not overflow
+    // Check that we are not overflow
     if ((double)size > std::sqrt((size_t)INT64_MAX))
         return false;
 
     auto** goal = new int64_t*[size];
-    auto result = new std::vector<int64_t>(size*size);
     for(int64_t i = 0; i < size; ++i) {
         goal[i] = new int64_t[size]{0};
     }
 
     auto step = (int64_t)size;
-	typedef struct { int64_t x, y; int64_t *c; } t_xy;
+    typedef struct { int64_t x, y; int64_t *c; } t_xy;
 
-	// Will move cursor in snail pattern
-	// ----->
-	// ^--->|
-	// |<--||
-	// <----|
+    // Will move cursor in snail pattern
+    // ----->
+    // ^--->|
+    // |<--||
+    // <----|
     auto cursor = t_xy{0, 0, nullptr};
 
     // Store current direction of th snail that we will alternate and swap
@@ -104,30 +103,30 @@ bool Parser::gen_snail_final_state(int32_t size, std::vector<int64_t> &out, uint
     cursor.c = &cursor.x;
     dir.c = &dir.x;
 
-	int64_t t = 1;
-	for (int64_t i = 1; i <= 2*size - 2 ; i++)
+    int64_t t = 1;
+    for (int64_t i = 1; i <= 2*size - 2 ; i++)
     {
         step -= i % 2 == 0;
-	    for (int64_t j = 0; j < step; j++)
+        for (int64_t j = 0; j < step; j++)
         {
-	        goal[cursor.y][cursor.x] = t;
+            goal[cursor.y][cursor.x] = t;
             (*cursor.c) += j < step - 1 ? *dir.c : 0;
             t++;
         }
 
-	    // swap current cursor axis and direction axis
-	    if (cursor.c == &cursor.x)
+        // swap current cursor axis and direction axis
+        if (cursor.c == &cursor.x)
         {
             cursor.c = &cursor.y;
-	        dir.c = &dir.y;
+            dir.c = &dir.y;
         } else {
             cursor.c = &cursor.x;
             dir.c = &dir.x;
-	    }
-	    // Alternate current direction
+        }
+        // Alternate current direction
         (*dir.c) *= -1;
 
-	    // Advance one forward as it is already filled on last iteration of the step
+        // Advance one forward as it is already filled on last iteration of the step
         (*cursor.c) += *dir.c;
     }
     for(int64_t y = 0; y < size; ++y)
@@ -138,7 +137,7 @@ bool Parser::gen_snail_final_state(int32_t size, std::vector<int64_t> &out, uint
     }
     delete[] goal;
     final_position = cursor.y * size + cursor.x;
-	return true;
+    return true;
 }
 
 const State *Parser::get_final_state()
