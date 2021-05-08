@@ -1,7 +1,7 @@
 /** * File              : solver.hpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 25.03.2021 13:34
- * Last Modified Date: 06.05.2021 21:29
+ * Last Modified Date: 08.05.2021 18:19
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -42,13 +42,14 @@ public:
 
     bool  is_solvable(State *initial, const State *final);
     State *solve(State *initial, const State *final);
+    State *solve_ida(State *initial, const State *final);
     
 private:
     std::map<std::string, State *(*)(const State *, State *)> heuristics;
     std::priority_queue<State *, std::vector<State *>, Comparator> queue;
     std::unordered_map<std::string, State *> opened, closed;
 
-    void analyze_state(State *candidate);
+    void analyze_state(State *candidate, const State *final);
 };
 
 #endif

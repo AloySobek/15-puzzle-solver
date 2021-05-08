@@ -2,7 +2,7 @@
  * File              : solver.cpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 02.04.2021 21:57
- * Last Modified Date: 08.05.2021 01:52
+ * Last Modified Date: 08.05.2021 21:34
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -64,49 +64,55 @@ State *Solver::solve(State *initial, const State *final)
             State *left{new State(intermediate)};
             left->pzl[left->zero_position] = left->pzl[left->zero_position - 1]; 
             left->pzl[left->zero_position - 1] = 0;
-            heuristics[ProgramState::instance()->heuristic](final, left);
-            left->g += ProgramState::instance()->algo_type == "GREEDY" ? 0 : 1;
             left->zero_position -= 1;
-            analyze_state(left);
+            analyze_state(left, final);
         }
         if ((intermediate->zero_position % intermediate->size) + 1 < intermediate->size)
         {
             State *right{new State(intermediate)};
             right->pzl[right->zero_position] = right->pzl[right->zero_position + 1];
             right->pzl[right->zero_position + 1] = 0;
-            heuristics[ProgramState::instance()->heuristic](final, right);
-            right->g += ProgramState::instance()->algo_type == "GREEDY" ? 0 : 1;
             right->zero_position += 1;
-            analyze_state(right);
+            analyze_state(right, final);
         }
         if ((int64_t)(intermediate->zero_position / intermediate->size) - 1 >= 0)
         {
             State *up{new State(intermediate)};
-            if (up->zero_position < 0 || up->zero_position - 1 < 0)
-                std::cout << "Alert!" << std::endl;
             up->pzl[up->zero_position] = up->pzl[up->zero_position - up->size];
             up->pzl[up->zero_position - up->size] = 0;
-            heuristics[ProgramState::instance()->heuristic](final, up);
-            up->g += ProgramState::instance()->algo_type == "GREEDY" ? 0 : 1;
             up->zero_position -= up->size;
-            analyze_state(up);
+            analyze_state(up, final);
         }
         if ((intermediate->zero_position / intermediate->size) + 1 < intermediate->size)
         {
             State *down{new State(intermediate)};
             down->pzl[down->zero_position] = down->pzl[down->zero_position + down->size];
             down->pzl[down->zero_position + down->size] = 0;
-            heuristics[ProgramState::instance()->heuristic](final, down);
-            down->g += ProgramState::instance()->algo_type == "GREEDY" ? 0 : 1;
             down->zero_position += down->size;
-            analyze_state(down);
+            analyze_state(down, final);
         }
     }
     return (nullptr);
 }
 
-void Solver::analyze_state(State *candidate)
+State *Solver::solve_ida(State *initial, const State *final)
 {
+    if (initial->pzl == final->pzl)
+        return (nullptr);
+    /* heuristics[ProgramState::instance()->heuristic](final, initial); */
+    /* uint64_t threshold = initial->h; */
+    /* while (true) */
+    /* { */
+        
+    /* } */
+    return (nullptr);
+}
+
+void Solver::analyze_state(State *candidate, const State *final)
+{
+    candidate->g += ProgramState::instance()->algo_type == "GREEDY" ? 0 : 1;
+    heuristics[ProgramState::instance()->heuristic](final, candidate);
+    candidate->h = ProgramState::instance()->algo_type == "UCS" ? 0 : candidate->h;
     if (closed.find(candidate->to_string()) == closed.end())
     {
         if (opened.find(candidate->to_string()) == opened.end())
@@ -129,8 +135,6 @@ State *hamming(const State *final, State *intermediate)
 {
     intermediate->h = 0;
 
-    if (ProgramState::instance()->algo_type == "UCS")
-        return (intermediate);
     for (uint64_t i{0}, size{final->pzl.size()}; i < size; ++i)
         if (intermediate->pzl[i] != 0 && intermediate->pzl[i] != final->pzl[i])
             ++(intermediate->h);
@@ -142,9 +146,6 @@ State *manhattan(const State *final, State *intermediate)
 {
     uint64_t size{final->size};
     intermediate->h = 0;
-
-    if (ProgramState::instance()->algo_type == "UCS")
-        return (intermediate);
 
     for (uint64_t i{0}, isize{final->pzl.size()}; i < isize; ++i)
         if (intermediate->pzl[i] != 0 && intermediate->pzl[i] != final->pzl[i])
@@ -160,14 +161,8 @@ State *manhattan(const State *final, State *intermediate)
 State *linear_conflicts(const State *final, State *intermediate)
 {
     uint64_t conflicts{0};
-
-    if (ProgramState::instance()->algo_type == "UCS")
-        return (intermediate);
-
-    manhattan(final, intermediate);
-
-    int8_t pR[(final->size * final->size) + 1];
-    int8_t pC[(final->size * final->size) + 1];
+    int8_t   pR[(final->size * final->size) + 1];
+    int8_t   pC[(final->size * final->size) + 1];
 
     for (uint64_t r = 0; r < final->size; r++) {
         for (uint64_t c = 0; c < final->size; c++) {
@@ -200,6 +195,20 @@ State *linear_conflicts(const State *final, State *intermediate)
             }
         }
     }
-    intermediate->h += 2 * conflicts;
+    manhattan(final, intermediate); intermediate->h += 2 * conflicts;
     return (intermediate);
 }
+
+/* void snail_final(int **puzzle, int *counter, int y, int x, int size, int offset) */
+/* { */
+/*     if (size - (offset + 1) == 0) return; */
+/*     for (int j{x}; j < size - offset; ++j) */
+/*         puzzle[size - (size - offset)][j] = ++(*counter); */
+/*     for (int i{y + 1}; i < size - offset; ++i) */
+/*         puzzle[i][size - offset - 1] = ++(*counter); */
+/*     for (int j{size - offset - 2}; j >= size - (size - offset); --j) */
+/*         puzzle[size - offset - 1][j] = ++(*counter); */
+/*     for (int i{size - offset - 2}; i >= size - (size - (offset + 1)); --i) */
+/*         puzzle[i][size - (size - offset)] = ++(*counter); */
+/*     snail_final(puzzle, counter, y + 1, x + 1, size, offset + 1); */
+/* } */

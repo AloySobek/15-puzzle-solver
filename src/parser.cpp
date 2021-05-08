@@ -2,22 +2,23 @@
  * File              : parser.cpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 02.04.2021 21:29
- * Last Modified Date: 06.05.2021 00:09
+ * Last Modified Date: 08.05.2021 21:49
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
 #include "parser.hpp"
-#include <boost/program_options/value_semantic.hpp>
+#include <stdexcept>
 
 void Parser::parse_cmd_options(int argc, char **argv)
 {
     po::options_description options("Allowed options");
     po::positional_options_description positional_options;
+    po::variables_map var_map;
 
     options.add_options()
         ("help", "show help message")
-        ("puzzle,p", po::value<std::string>(), "puzzle file")
         ("random,r", po::value<uint64_t>()->default_value(3), "random puzzle")
+        ("puzzle,p", po::value<std::string>()->default_value(""), "puzzle file")
         ("solution,s", po::value<std::string>()->default_value("snail"),
          "solution pattern")
         ("algorithm,a", po::value<std::string>()->default_value("A*"),
@@ -25,7 +26,9 @@ void Parser::parse_cmd_options(int argc, char **argv)
         ("algo-type,t", po::value<std::string>()->default_value("UCS+GREEDY"),
          "solve algorithm type")
         ("heuristic,h", po::value<std::string>()->default_value("manhattan"),
-         "heuristic function");
+         "heuristic function")
+        ("visualization,v", po::value<bool>()->default_value(false),
+         "visualized algorithm's steps");
     positional_options.add("puzzle", -1);
 
     po::store(po::command_line_parser(argc, argv)
@@ -52,9 +55,13 @@ void Parser::parse_cmd_options(int argc, char **argv)
         std::cout << "Usage: n-puzzle [options] [file]\n\n";
         options.print(std::cout, 0), exit(0);
     }
+    ProgramState::instance()->puzzle_filename = var_map["puzzle"].as<std::string>();
+    ProgramState::instance()->random_puzzle_size = var_map["random"].as<uint64_t>();
+    ProgramState::instance()->solution = var_map["solution"].as<std::string>();
     ProgramState::instance()->heuristic = var_map["heuristic"].as<std::string>();
     ProgramState::instance()->algorithm = var_map["algorithm"].as<std::string>();
     ProgramState::instance()->algo_type = var_map["algo-type"].as<std::string>();
+    ProgramState::instance()->visualization = var_map["visualization"].as<bool>();
 }
 
 State *Parser::get_initial_state()
@@ -63,9 +70,11 @@ State *Parser::get_initial_state()
     std::ifstream            file;
     std::string              line;
 
-    if (!var_map.count("puzzle"))
-        return from_random(var_map["random"].as<uint64_t>());
-    file.open(var_map["puzzle"].as<std::string>());
+    if (ProgramState::instance()->puzzle_filename.empty())
+        return from_random(ProgramState::instance()->random_puzzle_size);
+    file.open(ProgramState::instance()->puzzle_filename);
+    if (!file)
+        throw std::invalid_argument("File open error!");
     while (std::getline(file, line))
     {
         if (line.size() == 0) continue;
@@ -133,11 +142,13 @@ const State *Parser::get_final_state()
     std::string              line;
     State                    *final{new State()};
 
-    if (!var_map.count("puzzle"))
-        final->size = var_map["random"].as<uint64_t>();
+    if (ProgramState::instance()->puzzle_filename.empty())
+        final->size = ProgramState::instance()->random_puzzle_size;
     else
     {
-        file.open(var_map["puzzle"].as<std::string>());
+        file.open(ProgramState::instance()->puzzle_filename);
+        if (!file)
+            throw std::invalid_argument("File open error!");
         while (std::getline(file, line))
         {
             if (line.size() == 0) continue;
@@ -149,41 +160,28 @@ const State *Parser::get_final_state()
         data >> final->size;
     }
 
-    if (var_map["solution"].as<std::string>() == "snail")
+    if (final->size < 2)
+        throw std::invalid_argument("Something wrong with puzzle size");
+
+    if (ProgramState::instance()->solution == "snail")
     {
         final->pzl = std::vector<int64_t>(final->size * final->size);
         gen_snail_final_state(final->size, final->pzl, final->zero_position);
     }
-    else if (var_map["solution"].as<std::string>() == "classic")
+    else if (ProgramState::instance()->solution == "classic")
     {
+        for (uint64_t i{1}; i < final->size * final->size; ++i)
+            final->pzl[i - 1] = i;
+        final->pzl[final->size * final->size - 1] = 0;
         final->zero_position= final->size * final->size - 1;
-        switch(final->size) {
-            case 2:
-                final->pzl = {1, 2, 3, 0}; break;
-            case 3:
-                final->pzl = {1, 2, 3, 4, 5, 6, 7, 8, 0}; break;
-            case 4:
-                final->pzl = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0}; break;
-        }
     }
-    else if (var_map["solution"].as<std::string>() == "first-zero")
+    else if (ProgramState::instance()->solution == "first-zero")
     {
+        for (uint64_t i{0}; i < final->size * final->size; ++i)
+            final->pzl[i] = i;
         final->zero_position = 0;
-        switch(final->size) {
-            case 2:
-                final->pzl = {0, 1, 2, 3}; break;
-            case 3:
-                final->pzl = {0, 1, 2, 3, 4, 5, 6, 7, 8}; break;
-            case 4:
-                final->pzl = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}; break;
-        }
     }
     return (final);
-}
-
-const std::string Parser::get_heuristic()
-{
-    return (var_map["heuristic"].as<std::string>());
 }
 
 State *Parser::from_random(uint64_t n)

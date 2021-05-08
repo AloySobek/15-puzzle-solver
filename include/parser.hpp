@@ -2,7 +2,7 @@
  * File              : parser.hpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 25.03.2021 15:05
- * Last Modified Date: 05.05.2021 22:56
+ * Last Modified Date: 08.05.2021 17:55
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -11,9 +11,7 @@
 
 # include <boost/program_options.hpp>
 # include <exception>
-# include <algorithm>
 # include <iostream>
-# include <cstdlib>
 # include <fstream>
 # include <cstdint>
 # include <random>
@@ -34,7 +32,6 @@ public:
 
     State *get_initial_state();
     const State *get_final_state();
-    const std::string get_heuristic();
 
 private:
     std::vector<std::string> possible_solution_patterns {
@@ -44,12 +41,11 @@ private:
         "UCS+GREEDY", "UCS", "GREEDY"
     };
     std::vector<std::string> possible_heuristics {
-        "hamming", "manhattan", "linear-conflicts", "database"
+        "hamming", "manhattan", "linear-conflicts"
     };
     std::vector<std::string> possible_algorithms {
         "A*", "IDA*"
     };
-    po::variables_map var_map;
 
     State *from_random(uint64_t n);
     State *from_lines(std::vector<std::string> &lines);
