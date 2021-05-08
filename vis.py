@@ -23,7 +23,7 @@ class F(Frame):
             for a, b in zip(ra, rb):
                 row.append((b, 1 if a != b else 0))
             new.append(row)
-
+        self.state = state
         state = new
         [w.destroy() for w in self.winfo_children()]
         self.master.title("N-Puzzle")
@@ -36,9 +36,9 @@ class F(Frame):
                 col, ch = col
                 color = "#8f8f8f"
                 if not col:
-                    color = "#05f"
-                elif ch:
                     color = "#bf9e65"
+                elif ch:
+                    color = "#c95562"
                 canvas.create_rectangle(x, y, r*w + w, c*w + w, outline="#05f", fill=color)
                 canvas.create_text(x+(w - b)/2, y+(w - b)/2, text=f"{col}", font=("Purisa", 32), justify=CENTER)
         canvas.pack(fill=BOTH, expand=1)
