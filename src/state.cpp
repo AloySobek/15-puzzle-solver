@@ -2,11 +2,12 @@
  * File              : state.cpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 03.05.2021 19:25
- * Last Modified Date: 05.05.2021 16:07
+ * Last Modified Date: 08.05.2021 22:16
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
 #include "state.hpp"
+#include <string>
 
 State::State(const State *other)
 {
@@ -30,5 +31,16 @@ std::string State::to_string() const
 
     for (uint64_t i{0}, size{pzl.size()}; i < size; ++i)
         state_as_string += std::to_string(pzl[i]) + " ";
+
     return (state_as_string);
+}
+
+std::string State::row_to_string(uint64_t n) const
+{
+    std::string row_state_as_string("");
+
+    for (uint64_t i{size * n}; i < size * n + size; ++i)
+        row_state_as_string += std::to_string(pzl[i]) + " ";
+
+    return (row_state_as_string);
 }

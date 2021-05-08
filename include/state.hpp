@@ -2,7 +2,7 @@
  * File              : state.hpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 29.03.2021 00:27
- * Last Modified Date: 05.05.2021 16:07
+ * Last Modified Date: 08.05.2021 22:16
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -27,6 +27,7 @@ public:
     State(const State *other);
 
     std::string to_string() const;
+    std::string row_to_string(uint64_t n) const;
 
     friend bool operator<(const State &l, const State &r)
     {
