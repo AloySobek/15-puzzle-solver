@@ -78,15 +78,6 @@ State *Parser::get_initial_state()
 
 bool Parser::gen_snail_final_state(uint64_t size, std::vector<int64_t> &out, uint64_t &final_position)
 {
-    // Check that we are not overflow
-    if (size > SIZE_MAX || (double)size > std::sqrt(UINT64_MAX))
-        return false;
-
-    auto** goal = new uint64_t*[size];
-    for(uint64_t i = 0; i < size; ++i) {
-        goal[i] = new uint64_t[size]{0};
-    }
-
     auto step = size;
     typedef struct { uint64_t x, y; uint64_t *c; } t_xy;
     typedef struct { short x, y; short *c; } t_dxy;
@@ -104,13 +95,13 @@ bool Parser::gen_snail_final_state(uint64_t size, std::vector<int64_t> &out, uin
     cursor.c = &cursor.x;
     dir.c = &dir.x;
 
-    uint64_t t = 1;
+    int64_t t = 1;
     for (uint64_t i = 1; i <= 2*size - 2 ; i++)
     {
         step -= i % 2 == 0;
         for (uint64_t j = 0; j < step; j++)
         {
-            goal[cursor.y][cursor.x] = t;
+            out[cursor.y * size  + cursor.x] = t;
             (*cursor.c) += j < step - 1 ? *dir.c : 0;
             t++;
         }
@@ -130,14 +121,8 @@ bool Parser::gen_snail_final_state(uint64_t size, std::vector<int64_t> &out, uin
         // Advance one forward as it is already filled on last iteration of the step
         (*cursor.c) += *dir.c;
     }
-    for(uint64_t y = 0; y < size; ++y)
-    {
-        for(uint64_t x = 0; x < size; ++x)
-            out.push_back((int64_t)goal[y][x]);
-        delete[] goal[y];
-    }
-    delete[] goal;
     final_position = cursor.y * size + cursor.x;
+    out[final_position] = 0;
     return true;
 }
 
@@ -166,6 +151,7 @@ const State *Parser::get_final_state()
 
     if (var_map["solution"].as<std::string>() == "snail")
     {
+        final->pzl = std::vector<int64_t>(final->size * final->size);
         gen_snail_final_state(final->size, final->pzl, final->zero_position);
     }
     else if (var_map["solution"].as<std::string>() == "classic")
