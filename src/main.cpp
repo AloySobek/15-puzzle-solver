@@ -39,6 +39,8 @@ int main(int argc, char **argv)
     {
         parser->parse_cmd_options(argc, argv);
         initial = parser->get_initial_state();
+        if (!initial->is_ok())
+            throw std::invalid_argument("Given puzzle has invalid elements!");
         final = parser->get_final_state();
     }
     catch (std::exception &e)

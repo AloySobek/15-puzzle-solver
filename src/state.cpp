@@ -8,6 +8,7 @@
 
 #include "state.hpp"
 #include <string>
+#include <algorithm>
 
 State::State(State *other)
 {
@@ -48,4 +49,19 @@ std::string State::row_to_string(uint64_t n) const
             row_state_as_string += std::to_string(pzl[i]) + " ";
 
     return (row_state_as_string);
+}
+
+bool State::is_ok() {
+    std::vector<int64_t> ok(size * size);
+    for (auto &item : ok)
+        item = 0;
+    for (const auto &item : pzl)
+    {
+        if (item < 0)
+            return false;
+        if ((uint64_t)item > size * size - 1)
+            return false;
+        ok[item] = 1;
+    }
+    return std::all_of(ok.cbegin(), ok.cend(), [](auto i){ return i != 0; });
 }

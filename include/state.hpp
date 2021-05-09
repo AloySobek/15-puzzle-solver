@@ -30,6 +30,7 @@ public:
 
     std::string &to_string();
     std::string row_to_string(uint64_t n) const;
+    bool is_ok();
 
     friend bool operator<(const State &l, const State &r)
     {
