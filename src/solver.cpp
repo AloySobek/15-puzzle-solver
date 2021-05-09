@@ -180,13 +180,20 @@ State *manhattan(const State *final, State *intermediate)
 State *linear_conflicts(const State *final, State *intermediate)
 {
     uint64_t conflicts{0};
-    int8_t   pR[(final->size * final->size) + 1];
-    int8_t   pC[(final->size * final->size) + 1];
+    uint64_t   pR[(final->size * final->size) + 1];
+    uint64_t   pC[(final->size * final->size) + 1];
 
+    // Save intermediate row/column to accelerate check whether or not
+    // tile pair in the same row/column and check if tile pair in conflict
+    //
+    //  t1(x) -  -  and  t1 - - -> - - t2
+    //    -   -  -     t2 to the left of t1
+    //  t2(1) -  -
+    //
     for (uint64_t r = 0; r < final->size; r++) {
         for (uint64_t c = 0; c < final->size; c++) {
-            pR[intermediate->pzl[(r * final->size) + c]] = static_cast<int8_t>(r);
-            pC[intermediate->pzl[(r * final->size) + c]] = static_cast<int8_t>(c);
+            pR[intermediate->pzl[(r * final->size) + c]] = r;
+            pC[intermediate->pzl[(r * final->size) + c]] = c;
         }
     }
     for (uint64_t r{0}; r < final->size; r++) {
@@ -194,7 +201,7 @@ State *linear_conflicts(const State *final, State *intermediate)
             for (uint64_t cr = cl + 1; cr < final->size; cr++) {
                 if (final->pzl[(r * final->size) + cl]
                     && final->pzl[(r * final->size) + cr]
-                    && (int8_t)r == pR[final->pzl[(r * final->size) + cl]]
+                    && r == pR[final->pzl[(r * final->size) + cl]]
                     && pR[final->pzl[(r * final->size) + cl]] == pR[final->pzl[(r * final->size) + cr]]
                     && pC[final->pzl[(r * final->size) + cl]] > pC[final->pzl[(r * final->size) + cr]])
                         ++conflicts;
@@ -206,7 +213,7 @@ State *linear_conflicts(const State *final, State *intermediate)
             for (uint64_t rD = rU + 1; rD < final->size; rD++) {
                 if (final->pzl[(rU * final->size) + c]
                     && final->pzl[(rD * final->size)]
-                    && (int8_t)c == pC[final->pzl[(rU * final->size)]]
+                    && c == pC[final->pzl[(rU * final->size)]]
                     && pC[final->pzl[(rU * final->size)]] == pC[final->pzl[(rD * final->size)]]
                     && pR[final->pzl[(rU * final->size)]] > pR[final->pzl[(rD * final->size)]]) {
                         ++conflicts;
