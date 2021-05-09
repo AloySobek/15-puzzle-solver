@@ -2,7 +2,7 @@
  * File              : solver.cpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 02.04.2021 21:57
- * Last Modified Date: 09.05.2021 02:05
+ * Last Modified Date: 09.05.2021 18:14
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -67,8 +67,7 @@ State *Solver::solve(State *initial, const State *final)
             left->pzl[left->zero_position] = left->pzl[left->zero_position - 1]; 
             left->pzl[left->zero_position - 1] = 0;
             left->zero_position -= 1;
-            if (!analyze_state(left, final))
-                delete left;
+            if (!analyze_state(left, final)) delete left;
         }
         if ((intermediate->zero_position % intermediate->size) + 1 < intermediate->size)
         {
@@ -76,8 +75,7 @@ State *Solver::solve(State *initial, const State *final)
             right->pzl[right->zero_position] = right->pzl[right->zero_position + 1];
             right->pzl[right->zero_position + 1] = 0;
             right->zero_position += 1;
-            if (!analyze_state(right, final))
-                delete right;
+            if (!analyze_state(right, final)) delete right;
         }
         if ((int64_t)(intermediate->zero_position / intermediate->size) - 1 >= 0)
         {
@@ -85,8 +83,7 @@ State *Solver::solve(State *initial, const State *final)
             up->pzl[up->zero_position] = up->pzl[up->zero_position - up->size];
             up->pzl[up->zero_position - up->size] = 0;
             up->zero_position -= up->size;
-            if (!analyze_state(up, final))
-                delete up;
+            if (!analyze_state(up, final)) delete up;
         }
         if ((intermediate->zero_position / intermediate->size) + 1 < intermediate->size)
         {
@@ -94,8 +91,7 @@ State *Solver::solve(State *initial, const State *final)
             down->pzl[down->zero_position] = down->pzl[down->zero_position + down->size];
             down->pzl[down->zero_position + down->size] = 0;
             down->zero_position += down->size;
-            if (!analyze_state(down, final))
-                delete down;
+            if (!analyze_state(down, final)) delete down;
         }
     }
     return (nullptr);
@@ -103,10 +99,16 @@ State *Solver::solve(State *initial, const State *final)
 
 State *Solver::solve_ida(State *initial, const State *final)
 {
+    heuristics[ProgramState::instance()->heuristic](final, initial);
     if (initial->pzl == final->pzl)
         return (nullptr);
     return (nullptr);
 }
+
+/* State *Solver::solve_ida_search(State *intermediate, uint64_t g, uint64_t threshold) */
+/* { */
+        
+/* } */
 
 bool Solver::analyze_state(State *candidate, const State *final)
 {
@@ -180,8 +182,8 @@ State *manhattan(const State *final, State *intermediate)
 State *linear_conflicts(const State *final, State *intermediate)
 {
     uint64_t conflicts{0};
-    uint64_t   pR[(final->size * final->size) + 1];
-    uint64_t   pC[(final->size * final->size) + 1];
+    uint64_t pR[(final->size * final->size) + 1];
+    uint64_t pC[(final->size * final->size) + 1];
 
     // Save intermediate row/column to accelerate check whether or not
     // tile pair in the same row/column and check if tile pair in conflict

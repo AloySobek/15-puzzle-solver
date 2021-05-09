@@ -2,7 +2,7 @@
  * File              : parser.cpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 02.04.2021 21:29
- * Last Modified Date: 08.05.2021 21:53
+ * Last Modified Date: 09.05.2021 17:24
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -26,9 +26,7 @@ void Parser::parse_cmd_options(int argc, char **argv)
         ("algo-type,t", po::value<std::string>()->default_value("UCS+GREEDY"),
          "solve algorithm type")
         ("heuristic,h", po::value<std::string>()->default_value("manhattan"),
-         "heuristic function")
-        ("visualization,v", po::value<bool>()->default_value(false),
-         "visualized algorithm's steps");
+         "heuristic function");
     positional_options.add("puzzle", -1);
 
     po::store(po::command_line_parser(argc, argv)
@@ -61,7 +59,6 @@ void Parser::parse_cmd_options(int argc, char **argv)
     ProgramState::instance()->heuristic = var_map["heuristic"].as<std::string>();
     ProgramState::instance()->algorithm = var_map["algorithm"].as<std::string>();
     ProgramState::instance()->algo_type = var_map["algo-type"].as<std::string>();
-    ProgramState::instance()->visualization = var_map["visualization"].as<bool>();
 }
 
 State *Parser::get_initial_state()

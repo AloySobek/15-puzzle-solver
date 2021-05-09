@@ -2,7 +2,7 @@
  * File              : program-state.hpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 05.05.2021 19:19
- * Last Modified Date: 08.05.2021 17:44
+ * Last Modified Date: 09.05.2021 17:24
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -27,7 +27,6 @@ public:
     uint64_t    random_puzzle_size{3};
     uint64_t    expanded_nodes{0};
     uint64_t    visited_nodes{0};
-    bool        visualization{false};
 
     ProgramState(ProgramState &) = delete;
     void operator=(const ProgramState &) = delete;
