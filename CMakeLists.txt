@@ -11,7 +11,6 @@ set(CMAKE_CXX_FLAGS "-Werror -Wall -Wextra")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 FIND_PACKAGE(Boost COMPONENTS program_options REQUIRED)
-FIND_PACKAGE(Curses REQUIRED)
 
 add_executable(
     ${PROJECT_NAME}
@@ -25,7 +24,6 @@ target_include_directories(
     ${PROJECT_NAME}
     PRIVATE
     ${Boost_INCLUDE_DIR}
-    ${CURSES_INCLUDE_DIR}
     ${PROJECT_SOURCE_DIR}/include
 )
 
@@ -33,5 +31,4 @@ target_link_libraries(
     ${PROJECT_NAME}
     LINK_PUBLIC
     ${Boost_LIBRARIES}
-    ${CURSES_LIBRARIES}
 )

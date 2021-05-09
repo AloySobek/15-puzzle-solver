@@ -2,7 +2,7 @@
  * File              : main.cpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 03.05.2021 17:49
- * Last Modified Date: 09.05.2021 02:07
+ * Last Modified Date: 09.05.2021 19:38
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -19,7 +19,7 @@
 
 void  print_solved(State *s, uint64_t *moves)
 {
-    if (!s)
+    if (!s || !s->parent)
         return ;
     ++(*moves);
     print_solved(s->parent, moves);

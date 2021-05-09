@@ -2,7 +2,7 @@
  * File              : parser.cpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 02.04.2021 21:29
- * Last Modified Date: 09.05.2021 17:24
+ * Last Modified Date: 09.05.2021 19:37
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -17,7 +17,7 @@ void Parser::parse_cmd_options(int argc, char **argv)
 
     options.add_options()
         ("help", "show help message")
-        ("random,r", po::value<uint64_t>()->default_value(3), "random puzzle")
+        ("random,r", po::value<int64_t>()->default_value(3), "random puzzle")
         ("puzzle,p", po::value<std::string>()->default_value(""), "puzzle file")
         ("solution,s", po::value<std::string>()->default_value("snail"),
          "solution pattern")
@@ -54,7 +54,7 @@ void Parser::parse_cmd_options(int argc, char **argv)
         options.print(std::cout, 0), exit(0);
     }
     ProgramState::instance()->puzzle_filename = var_map["puzzle"].as<std::string>();
-    ProgramState::instance()->random_puzzle_size = var_map["random"].as<uint64_t>();
+    ProgramState::instance()->random_puzzle_size = var_map["random"].as<int64_t>();
     ProgramState::instance()->solution = var_map["solution"].as<std::string>();
     ProgramState::instance()->heuristic = var_map["heuristic"].as<std::string>();
     ProgramState::instance()->algorithm = var_map["algorithm"].as<std::string>();
@@ -157,9 +157,6 @@ const State *Parser::get_final_state()
         data >> final->size;
     }
 
-    if (final->size < 2)
-        throw std::invalid_argument("Something wrong with puzzle size");
-
     if (ProgramState::instance()->solution == "snail")
     {
         final->pzl = std::vector<int64_t>(final->size * final->size);
@@ -168,22 +165,22 @@ const State *Parser::get_final_state()
     else if (ProgramState::instance()->solution == "classic")
     {
         for (uint64_t i{1}; i < final->size * final->size; ++i)
-            final->pzl[i - 1] = i;
-        final->pzl[final->size * final->size - 1] = 0;
-        final->zero_position= final->size * final->size - 1;
+            final->pzl.push_back(i);
+        final->pzl.push_back(0);
+        final->zero_position = final->size * final->size - 1;
     }
     else if (ProgramState::instance()->solution == "first-zero")
     {
         for (uint64_t i{0}; i < final->size * final->size; ++i)
-            final->pzl[i] = i;
+            final->pzl.push_back(i);
         final->zero_position = 0;
     }
     return (final);
 }
 
-State *Parser::from_random(uint64_t n)
+State *Parser::from_random(int64_t n)
 {
-    if (n < 2)
+    if (n < 1)
         throw std::invalid_argument("Something wrong with puzzle size");
 
     int64_t *mem{new int64_t[n * n]()};
@@ -193,8 +190,8 @@ State *Parser::from_random(uint64_t n)
     std::srand(std::time(nullptr));
     initial->size = n;
 
-    for (uint64_t i{0}; i < n*n; ++i)
-        for (uint64_t random{std::rand()%(n*n)}; true; random=std::rand()%(n*n))
+    for (int64_t i{0}; i < n*n; ++i)
+        for (int64_t random{std::rand()%(n*n)}; true; random=std::rand()%(n*n))
             if (mem[random] == -1)
             {
                 if (!random)
@@ -208,8 +205,7 @@ State *Parser::from_random(uint64_t n)
 
 State *Parser::from_lines(std::vector<std::string> &lines)
 {
-    uint64_t n{0}, i{0};
-    int64_t  v{0};
+    int64_t n{0}, i{0}, v{0};
     State    *initial{new State()};
 
     if (!lines.size())
@@ -222,9 +218,9 @@ State *Parser::from_lines(std::vector<std::string> &lines)
         if (!n)        
         {
             data >> n, initial->size = n;
-            if (n < 2 || data >> n)
+            if (n < 1 || data >> n)
                 throw std::invalid_argument("Something wrong with puzzle size");
-            else if (lines.size() - 1 != n)
+            else if ((int64_t)lines.size() - 1 != n)
                 throw std::invalid_argument("Wrong number of lines");
         }
         else

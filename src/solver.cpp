@@ -2,7 +2,7 @@
  * File              : solver.cpp
  * Author            : Rustam Khafizov <super.rustamm@gmail.com>
  * Date              : 02.04.2021 21:57
- * Last Modified Date: 09.05.2021 18:14
+ * Last Modified Date: 09.05.2021 19:36
  * Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
  */
 
@@ -51,10 +51,10 @@ State *Solver::solve(State *initial, const State *final)
         State *intermediate = queue.top();
         queue.pop();
 
-        ++ProgramState::instance()->visited_nodes;
-
         if (intermediate->pzl == final->pzl)
             return (intermediate);
+        
+        ++ProgramState::instance()->visited_nodes;
         
         opened.erase(intermediate->to_string());
         if (closed.find(intermediate->to_string()) != closed.end())
