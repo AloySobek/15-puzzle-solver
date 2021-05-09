@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 # File              : npuzzle-gen.py
 # Author            : Rustam Khafizov <super.rustamm@gmail.com>
@@ -26,11 +26,11 @@ def make_puzzle(s, solvable, iterations):
 		swi = random.choice(poss)
 		p[idx] = p[swi]
 		p[swi] = 0
-	
+
 	p = make_goal(s)
 	for i in range(iterations):
 		swap_empty(p)
-	
+
 	if not solvable:
 		if p[0] == 0 or p[1] == 0:
 			p[-1], p[-2] = p[-2], p[-1]

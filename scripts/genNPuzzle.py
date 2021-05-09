@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from __future__ import print_function
 import random
 import sys
@@ -21,12 +22,12 @@ if __name__ == '__main__':
     for i in range(0, 3):
         if random.randrange(0, 2):
             print(["# Comment here\n", "# Comment\tthere\n", "# Comment over\n", "# Comment here\n"][random.randrange(0, 3)], end='')
-    
+
     d = random.randrange(0, 25)
 
     try:
         d = int(sys.argv[1], 10)
     except (ValueError, IndexError):
         pass
-        
+
     genNPuzzle(d)
