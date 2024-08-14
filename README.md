@@ -1,5 +1,7 @@
 # 15-puzzle-solver
 
+[15 puzzle](https://en.wikipedia.org/wiki/15_puzzle) solver written in C++
+
 ## Usage
 
 ```
